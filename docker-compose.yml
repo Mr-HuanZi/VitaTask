@@ -1,0 +1,66 @@
+version: '3.9'
+services:
+  backend:
+    container_name: vita-task-backend
+    hostname: backend
+    privileged: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/go/src
+      - ./app.yml:/go/bin/app.yml
+    depends_on:
+      - mysql
+    restart: unless-stopped
+
+  mysql:
+    container_name: vita-task-mysql
+    hostname: mysql
+    image: "mysql:5.7.34"
+    ports: # mysql ports item
+      - "13306:3306" # mysql ports value
+    secrets:
+      - db-root-password
+    volumes:
+      - ./docker/data/mysql:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/my.cnf
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-root-password
+      - MYSQL_DATABASE=vita_task
+      - MYSQL_USER=vitatask
+      - MYSQL_PASSWORD=vitatask
+    restart: unless-stopped
+
+  nginx:
+    container_name: vita-task-nginx
+    hostname: nginx
+    image: nginx:latest
+    ports:
+      - "8880:80"
+      - "8443:443"
+    volumes:
+      - "./docker/nginx/nginx.conf:/usr/local/openresty/nginx/nginx.conf"
+      - "./docker/nginx/conf.d:/etc/nginx/conf.d"
+      - ".:/var/www"
+    depends_on:
+      - backend
+      - node
+    restart: unless-stopped
+
+  # Node镜像，生产环境可以不需要
+  node:
+    container_name: vita-task-node
+    hostname: node
+    build:
+      # 如果相对路径有问题，改为绝对路径，下同
+      context: E:\Develop\Project\nodeJS\VitaTask
+      dockerfile: Dockerfile
+    volumes:
+        - E:\Develop\Project\nodeJS\VitaTask\src:/app/src
+        - E:\Develop\Project\nodeJS\VitaTask\config:/app/config
+    restart: unless-stopped
+
+secrets:
+  db-root-password:
+    file: docker/mysql/root-password.txt
