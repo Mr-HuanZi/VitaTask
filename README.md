@@ -21,6 +21,8 @@ go mod tidy
 
 > 如需要修改请在`app.yml`内指定
 
+将`vita_task.sql`导入到Mysql中。
+
 ## 部署
 
 ### 调试
