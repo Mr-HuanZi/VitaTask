@@ -1,130 +1,124 @@
 package routers
 
 import (
-	"VitaTaskGo/app/controller"
-	"VitaTaskGo/app/middleware"
-	"VitaTaskGo/app/modules/ws"
+	"VitaTaskGo/api"
+	"VitaTaskGo/internal/middleware"
+	"VitaTaskGo/internal/pkg/ws"
 	"github.com/gin-gonic/gin"
 )
 
 func ApiRouters(r *gin.Engine) {
 	// 静态文件服务
 	r.Static("/uploads", "./uploads")
-	// API路由z
-	{
-		var indexController controller.IndexController
-		r.GET("/hello", indexController.Hello)
-	}
 
 	{
 		// 登录接口
-		loginController := controller.NewLoginController()
-		r.POST("/login", loginController.Login)
-		r.POST("/register", loginController.Register)
+		loginApi := api.NewLoginApi()
+		r.POST("/login", loginApi.Login)
+		r.POST("/register", loginApi.Register)
 	}
 
 	{
-		userController := controller.NewUserController()
+		userApi := api.NewUserApi()
 		// 获取当前登录用户
-		r.GET("/currentUser", middleware.CheckLogin(), userController.CurrUser)
+		r.GET("/currentUser", middleware.CheckLogin(), userApi.CurrUser)
 		// 用户接口
 		g := r.Group("user", middleware.CheckLogin())
-		g.POST("store", userController.StoreSelf)
-		g.POST("change-avatar", userController.ChangeAvatar)
-		g.POST("change-pass", userController.ChangePassword)
-		g.POST("change-mobile", userController.ChangeMobile)
-		g.POST("change-email", userController.ChangeEmail)
+		g.POST("store", userApi.StoreSelf)
+		g.POST("change-avatar", userApi.ChangeAvatar)
+		g.POST("change-pass", userApi.ChangePassword)
+		g.POST("change-mobile", userApi.ChangeMobile)
+		g.POST("change-email", userApi.ChangeEmail)
 	}
 
 	{
 		// 文件接口
-		filesController := controller.NewFilesController()
+		filesApi := api.NewFilesApi()
 		g := r.Group("/files", middleware.CheckLogin())
-		g.POST("upload", filesController.UploadFile)
+		g.POST("upload", filesApi.UploadFile)
 	}
 
 	{
 		// 成员接口
-		memberController := controller.NewMemberController()
+		memberApi := api.NewMemberApi()
 		g := r.Group("/member", middleware.CheckLogin())
-		g.POST("list/simple", memberController.SimpleList)
-		g.POST("lists", memberController.Lists)
-		g.POST("create", memberController.Create)
-		g.POST("disable", memberController.Disable)
-		g.POST("enable", memberController.Enable)
-		g.POST("reset-pass", memberController.ResetPassword)
-		g.POST("change-super", memberController.ChangeSuper)
+		g.POST("list/simple", memberApi.SimpleList)
+		g.POST("lists", memberApi.Lists)
+		g.POST("create", memberApi.Create)
+		g.POST("disable", memberApi.Disable)
+		g.POST("enable", memberApi.Enable)
+		g.POST("reset-pass", memberApi.ResetPassword)
+		g.POST("change-super", memberApi.ChangeSuper)
 	}
 
 	{
 		// 项目接口
-		projectController := controller.NewProjectController()
+		projectApi := api.NewProjectApi()
 		g := r.Group("/project", middleware.CheckLogin())
-		g.POST("create", projectController.CreateProject)
-		g.POST("edit", projectController.EditProject)
-		g.POST("list", projectController.ProjectList)
-		g.POST("list/simple", projectController.SimpleList)
-		g.POST("trash", projectController.ProjectTrash)
-		g.POST("del", projectController.ProjectDelete)
-		g.POST("archive", projectController.ProjectArchive)
-		g.POST("un-archive", projectController.UnArchive)
-		g.POST("star", projectController.Star)
-		g.POST("un-star", projectController.UnStart)
-		g.POST("transfer", projectController.Transfer)
-		g.POST("detail", projectController.Detail)
+		g.POST("create", projectApi.CreateProject)
+		g.POST("edit", projectApi.EditProject)
+		g.POST("list", projectApi.ProjectList)
+		g.POST("list/simple", projectApi.SimpleList)
+		g.POST("trash", projectApi.ProjectTrash)
+		g.POST("del", projectApi.ProjectDelete)
+		g.POST("archive", projectApi.ProjectArchive)
+		g.POST("un-archive", projectApi.UnArchive)
+		g.POST("star", projectApi.Star)
+		g.POST("un-star", projectApi.UnStart)
+		g.POST("transfer", projectApi.Transfer)
+		g.POST("detail", projectApi.Detail)
 
 		{
-			projectMemberController := controller.NewProjectMemberController()
+			projectMemberApi := api.NewProjectMemberApi()
 			gg := g.Group("/member")
-			gg.POST("bind", projectMemberController.Bind)
-			gg.POST("remove", projectMemberController.Remove)
-			gg.POST("list", projectMemberController.List)
+			gg.POST("bind", projectMemberApi.Bind)
+			gg.POST("remove", projectMemberApi.Remove)
+			gg.POST("list", projectMemberApi.List)
 
 		}
 	}
 
 	{
 		// 任务接口
-		taskController := controller.NewTaskController()
+		taskApi := api.NewTaskApi()
 		g := r.Group("/task", middleware.CheckLogin())
-		g.POST("list", taskController.Lists)
-		g.POST("create", taskController.Create)
-		g.POST("detail", taskController.Detail)
-		g.POST("roles", taskController.Roles)
-		g.POST("status", taskController.Status)
-		g.POST("change-status", taskController.ChangeStatus)
-		g.POST("update", taskController.Update)
-		g.POST("delete", taskController.Delete)
-		g.POST("statistics", taskController.Statistics)
-		g.POST("daily-situation", taskController.DailySituation)
+		g.POST("list", taskApi.Lists)
+		g.POST("create", taskApi.Create)
+		g.POST("detail", taskApi.Detail)
+		g.POST("roles", taskApi.Roles)
+		g.POST("status", taskApi.Status)
+		g.POST("change-status", taskApi.ChangeStatus)
+		g.POST("update", taskApi.Update)
+		g.POST("delete", taskApi.Delete)
+		g.POST("statistics", taskApi.Statistics)
+		g.POST("daily-situation", taskApi.DailySituation)
 
 		{
 			// 任务组接口
-			taskGroupController := controller.NewTaskGroupController()
+			taskGroupApi := api.NewTaskGroupApi()
 			gg := g.Group("group")
-			gg.POST("add", taskGroupController.Add)
-			gg.POST("update", taskGroupController.Update)
-			gg.POST("delete", taskGroupController.Delete)
-			gg.POST("list", taskGroupController.List)
-			gg.POST("detail", taskGroupController.Detail)
-			gg.POST("simple-list", taskGroupController.SimpleList)
+			gg.POST("add", taskGroupApi.Add)
+			gg.POST("update", taskGroupApi.Update)
+			gg.POST("delete", taskGroupApi.Delete)
+			gg.POST("list", taskGroupApi.List)
+			gg.POST("detail", taskGroupApi.Detail)
+			gg.POST("simple-list", taskGroupApi.SimpleList)
 		}
 
 		{
-			taskLogController := controller.NewTaskLogController()
+			taskLogApi := api.NewTaskLogApi()
 			gg := g.Group("log")
-			gg.POST("list", taskLogController.List)
-			gg.POST("operators", taskLogController.Operators)
+			gg.POST("list", taskLogApi.List)
+			gg.POST("operators", taskLogApi.Operators)
 		}
 	}
 
 	{
-		dialogController := controller.NewDialogController()
+		dialogApi := api.NewDialogApi()
 		g := r.Group("dialog", middleware.CheckLogin())
-		g.POST("list", dialogController.List)
-		g.POST("create", dialogController.Create)
-		g.POST("msg-list", dialogController.MsgList)
-		g.POST("send-text", dialogController.SendText)
+		g.POST("create", dialogApi.Create)
+		g.POST("msg-list", dialogApi.MsgList)
+		g.POST("send-text", dialogApi.SendText)
 	}
 }
 

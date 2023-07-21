@@ -6,10 +6,10 @@ services:
     privileged: true
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/go/Dockerfile
     volumes:
       - .:/go/src
-      - ./app.yml:/go/bin/app.yml
+      - ./app.yaml:/go/bin/app.yaml
     depends_on:
       - mysql
     restart: unless-stopped
@@ -55,7 +55,7 @@ services:
     build:
       # 如果相对路径有问题，改为绝对路径，下同
       context: E:\Develop\Project\nodeJS\VitaTask
-      dockerfile: Dockerfile
+      dockerfile: docker/go/Dockerfile
     volumes:
         - E:\Develop\Project\nodeJS\VitaTask\src:/app/src
         - E:\Develop\Project\nodeJS\VitaTask\config:/app/config
