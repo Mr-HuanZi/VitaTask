@@ -33,3 +33,7 @@ screenshot
 .eslintcache
 
 build
+
+# log
+*.log
+**/logs
