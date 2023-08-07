@@ -60,4 +60,5 @@ type UserRepo interface {
 	UpdateUserStatus(uint64, int) error
 	UpdateUserPass(uint64, string) error
 	UpdateUserSuper(uint64, int8) error
+	GetAdministrators() ([]User, error)
 }

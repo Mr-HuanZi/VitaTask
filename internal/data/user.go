@@ -14,61 +14,61 @@ type UserRepo struct {
 	ctx *gin.Context
 }
 
-func (receiver *UserRepo) CreateUser(data *biz.User) error {
-	return receiver.tx.Create(&data).Error
+func (r *UserRepo) CreateUser(data *biz.User) error {
+	return r.tx.Create(&data).Error
 }
 
-func (receiver *UserRepo) SaveUser(data *biz.User) error {
-	return receiver.tx.Save(&data).Error
+func (r *UserRepo) SaveUser(data *biz.User) error {
+	return r.tx.Save(&data).Error
 }
 
-func (receiver *UserRepo) UpdatesUser(id uint64, data *biz.User) error {
-	return receiver.tx.Model(&biz.User{}).Where("id = ?", id).Updates(&data).Error
+func (r *UserRepo) UpdatesUser(id uint64, data *biz.User) error {
+	return r.tx.Model(&biz.User{}).Where("id = ?", id).Updates(&data).Error
 }
 
-func (receiver *UserRepo) DeleteUser(id uint64) error {
-	return receiver.tx.Delete(&biz.User{}, id).Error
+func (r *UserRepo) DeleteUser(id uint64) error {
+	return r.tx.Delete(&biz.User{}, id).Error
 }
 
-func (receiver *UserRepo) GetUser(id uint64) (*biz.User, error) {
+func (r *UserRepo) GetUser(id uint64) (*biz.User, error) {
 	var user *biz.User
-	err := receiver.tx.First(&user, id).Error
+	err := r.tx.First(&user, id).Error
 	return user, err
 }
 
 // Exist 用户是否存在
 // 不记录错误也不返回错误
-func (receiver *UserRepo) Exist(id uint64) bool {
+func (r *UserRepo) Exist(id uint64) bool {
 	// 有记录就说明查到了
-	return receiver.tx.Select("id").Where("id = ?", id).First(&biz.User{}).Error == nil
+	return r.tx.Select("id").Where("id = ?", id).First(&biz.User{}).Error == nil
 }
 
 // ExistByUsername 用户是否存在
 // 不记录错误也不返回错误
-func (receiver *UserRepo) ExistByUsername(username string) bool {
+func (r *UserRepo) ExistByUsername(username string) bool {
 	// 有记录就说明查到了
-	return receiver.tx.Select("id").Where("user_login = ?", username).First(&biz.User{}).Error == nil
+	return r.tx.Select("id").Where("user_login = ?", username).First(&biz.User{}).Error == nil
 }
 
-func (receiver *UserRepo) QueryUsernameAndPass(username, pwd string) (*biz.User, error) {
+func (r *UserRepo) QueryUsernameAndPass(username, pwd string) (*biz.User, error) {
 	var user *biz.User
-	err := receiver.tx.Where("user_login = ?", username).Where("user_pass = ?", pwd).First(&user).Error
+	err := r.tx.Where("user_login = ?", username).Where("user_pass = ?", pwd).First(&user).Error
 	return user, err
 }
 
-func (receiver *UserRepo) QueryUsername(username string) (*biz.User, error) {
+func (r *UserRepo) QueryUsername(username string) (*biz.User, error) {
 	var user *biz.User
-	err := receiver.tx.Where("user_login = ?", username).First(&user).Error
+	err := r.tx.Where("user_login = ?", username).First(&user).Error
 	return user, err
 }
 
-func (receiver *UserRepo) PageListUser(query dto.MemberListsQuery) ([]biz.User, int64, error) {
+func (r *UserRepo) PageListUser(query dto.MemberListsQuery) ([]biz.User, int64, error) {
 	var (
 		count   int64
 		members []biz.User
 	)
 
-	tx := receiver.tx.Model(&biz.User{})
+	tx := r.tx.Model(&biz.User{})
 	/* 查询 Start */
 	if query.Id > 0 {
 		// 如果是ID查询就只允许一个条件
@@ -105,9 +105,9 @@ func (receiver *UserRepo) PageListUser(query dto.MemberListsQuery) ([]biz.User, 
 	return members, count, err
 }
 
-func (receiver *UserRepo) SimpleList(key string) []dto.SimpleMemberList {
+func (r *UserRepo) SimpleList(key string) []dto.SimpleMemberList {
 	var simpleList []dto.SimpleMemberList
-	tx := receiver.tx.Model(&biz.User{}).Where("user_status = ?", 1)
+	tx := r.tx.Model(&biz.User{}).Where("user_status = ?", 1)
 	if key != "" {
 		tx = tx.Where("user_login LIKE ? OR user_nickname LIKE ?", "%"+key+"%", "%"+key+"%")
 	}
@@ -115,17 +115,23 @@ func (receiver *UserRepo) SimpleList(key string) []dto.SimpleMemberList {
 	return simpleList
 }
 
-func (receiver *UserRepo) UpdateUserStatus(id uint64, status int) error {
-	return receiver.tx.Model(&biz.User{}).Where("id = ?", id).Updates(map[string]interface{}{"user_status": status}).Error
+func (r *UserRepo) UpdateUserStatus(id uint64, status int) error {
+	return r.tx.Model(&biz.User{}).Where("id = ?", id).Updates(map[string]interface{}{"user_status": status}).Error
 }
 
-func (receiver *UserRepo) UpdateUserPass(id uint64, pwd string) error {
+func (r *UserRepo) UpdateUserPass(id uint64, pwd string) error {
 	// 同时更新修改密码的时间
-	return receiver.tx.Model(&biz.User{}).Where("id = ?", id).Updates(biz.User{UserPass: pwd, LastEditPass: time.Now().Unix()}).Error
+	return r.tx.Model(&biz.User{}).Where("id = ?", id).Updates(biz.User{UserPass: pwd, LastEditPass: time.Now().Unix()}).Error
 }
 
-func (receiver *UserRepo) UpdateUserSuper(id uint64, super int8) error {
-	return receiver.tx.Model(&biz.User{}).Where("id = ?", id).Updates(map[string]interface{}{"super": super}).Error
+func (r *UserRepo) UpdateUserSuper(id uint64, super int8) error {
+	return r.tx.Model(&biz.User{}).Where("id = ?", id).Updates(map[string]interface{}{"super": super}).Error
+}
+
+func (r *UserRepo) GetAdministrators() ([]biz.User, error) {
+	var l []biz.User
+	err := r.tx.Where("user_status = ?", 1).Where("super = ?", 1).Find(&l).Error
+	return l, err
 }
 
 func NewUserRepo(tx *gorm.DB, ctx *gin.Context) biz.UserRepo {
