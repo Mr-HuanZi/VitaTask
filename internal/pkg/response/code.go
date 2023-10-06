@@ -71,6 +71,27 @@ const (
 	DialogKeep1Member     = 5009 // 对话至少保留一个成员
 	DialogDeleteFail      = 5010 // 对话删除失败
 
+	WorkflowTypeCreateFail               = 6000 // 工作流类型创建失败
+	WorkflowTypeUpdateFail               = 6001 // 工作流类型更新失败
+	WorkflowTypeDeleteFail               = 6002 // 工作流类型删除失败
+	WorkflowTypeOnlyNameRepeat           = 6003 // 工作流类型唯一标志重复
+	WorkflowTypeOnlyNameEmpty            = 6004 // 工作流类型唯一标志为空
+	WorkflowTypeNotExist                 = 6005 // 工作流类型不存在
+	WorkflowNodeCreateFail               = 6006 // 工作流节点创建失败
+	WorkflowNodeUpdateFail               = 6007 // 工作流节点更新失败
+	WorkflowNodeDeleteFail               = 6008 // 工作流节点删除失败
+	WorkflowNodeNotExist                 = 6009 // 工作流节点不存在
+	WorkflowEngineNotInitialized         = 6100 // 工作流未初始化
+	WorkflowEngineNoFirstNodeSet         = 6101 // 工作流未设置起始节点
+	WorkflowEngineSerialGenerationFailed = 6102 // 工作流编号生成失败
+	WorkflowEngineActionNotRegistered    = 6103 // 工作流动作未注册
+	WorkflowEngineEnded                  = 6104 // 工作流已结束
+	WorkflowEngineNodeJumpErr            = 6105 // 跳转的节点不能高于当前节点
+	WorkflowEngineRemoveOperatorFail     = 6106 // 移除工作流操作人失败
+	WorkflowEngineOperatorHandleFail     = 6107 // 操作人修改为已操作状态失败
+	WorkflowEngineSaveMainDataFail       = 6108 // 工作流更新主数据失败
+	WorkflowEngineSaveOperatorFail       = 6109 // 工作流保存操作人失败
+
 	TimeParseFail            = 9000 // 时间解析失败
 	ElementQuantityTooLittle = 9001 // 元素数量太少
 	ElementQuantityTooMany   = 9002 // 元素数量太多
@@ -149,6 +170,27 @@ var codeMap = map[int]string{
 	JoinDialogFail:        "加入对话失败",
 	DialogKeep1Member:     "对话至少保留一个成员",
 	DialogDeleteFail:      "对话删除失败",
+
+	WorkflowTypeCreateFail:               "工作流类型创建失败",
+	WorkflowTypeUpdateFail:               "工作流类型更新失败",
+	WorkflowTypeDeleteFail:               "工作流类型删除失败",
+	WorkflowTypeOnlyNameRepeat:           "工作流类型唯一标志重复",
+	WorkflowTypeOnlyNameEmpty:            "工作流类型唯一标志为空",
+	WorkflowTypeNotExist:                 "工作流类型不存在",
+	WorkflowNodeCreateFail:               "工作流节点创建失败",
+	WorkflowNodeUpdateFail:               "工作流节点更新失败",
+	WorkflowNodeDeleteFail:               "工作流节点删除失败",
+	WorkflowNodeNotExist:                 "工作流节点不存在",
+	WorkflowEngineNotInitialized:         "工作流未初始化",
+	WorkflowEngineNoFirstNodeSet:         "工作流未设置起始节点",
+	WorkflowEngineSerialGenerationFailed: "工作流编号生成失败",
+	WorkflowEngineActionNotRegistered:    "工作流动作未注册",
+	WorkflowEngineEnded:                  "工作流已结束",
+	WorkflowEngineNodeJumpErr:            "跳转的节点不能高于当前节点",
+	WorkflowEngineRemoveOperatorFail:     "移除工作流操作人失败",
+	WorkflowEngineOperatorHandleFail:     "操作人修改为已操作状态失败",
+	WorkflowEngineSaveMainDataFail:       "工作流主数据保存失败",
+	WorkflowEngineSaveOperatorFail:       "工作流操作人保存失败",
 
 	TimeParseFail:            "时间解析失败",
 	ElementQuantityTooLittle: "元素数量太少",

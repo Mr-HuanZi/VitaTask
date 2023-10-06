@@ -5,6 +5,7 @@ import (
 	"VitaTaskGo/internal/pkg/config"
 	"VitaTaskGo/internal/pkg/db"
 	"VitaTaskGo/internal/pkg/log"
+	"VitaTaskGo/internal/pkg/workflow"
 	"VitaTaskGo/routers"
 	"flag"
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,8 @@ func main() {
 	log.InitLogsDriver()
 	// 初始化数据库
 	initDatabases()
+	// 初始化工作流
+	workflow.Init()
 	// 初始化Gin
 	r := gin.Default()
 	// 注册中间件

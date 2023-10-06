@@ -120,6 +120,37 @@ func ApiRouters(r *gin.Engine) {
 		g.POST("msg-list", dialogApi.MsgList)
 		g.POST("send-text", dialogApi.SendText)
 	}
+
+	{
+		workflowApi := api.NewWorkflowApi()
+		g := r.Group("workflow", middleware.CheckLogin())
+		g.POST("initiate", workflowApi.Initiate)
+		g.POST("examine-approve", workflowApi.ExamineApprove)
+		g.POST("all", workflowApi.All)
+		g.POST("todo", workflowApi.ToDo)
+		g.POST("handled", workflowApi.Handled)
+		g.POST("list", workflowApi.List)
+		g.GET("status/list", workflowApi.StatusList)
+
+		{
+			twoG := g.Group("type")
+			twoG.POST("add", workflowApi.TypeAdd)
+			twoG.POST("update", workflowApi.TypeUpdate)
+			twoG.POST("list", workflowApi.TypeList)
+			twoG.POST("delete", workflowApi.TypeDelete)
+			twoG.POST("detail", workflowApi.TypeDetail)
+			twoG.GET("options", workflowApi.TypeOptions)
+		}
+
+		{
+			twoG := g.Group("node")
+			twoG.POST("add", workflowApi.NodeAdd)
+			twoG.POST("update", workflowApi.NodeUpdate)
+			twoG.POST("list", workflowApi.NodeList)
+			twoG.POST("delete", workflowApi.NodeDelete)
+			twoG.POST("actions", workflowApi.Actions)
+		}
+	}
 }
 
 func WebSocketRouters(r *gin.Engine) {

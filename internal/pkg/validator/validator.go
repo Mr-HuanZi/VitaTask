@@ -46,6 +46,9 @@ var formVerificationFailed = map[string]string{
 	"ChangeSuperDto.Super.min":      "超级用户数值应该是1或2",
 	"ChangeSuperDto.Super.max":      "超级用户数值应该是1或2",
 
+	// 工作流
+	"WorkflowNodeQueryDto.TypeId.required": "缺少工作流类型查询项",
+
 	// 其它
 	"SingleUintRequired.ID.required": "缺少ID参数",
 }
