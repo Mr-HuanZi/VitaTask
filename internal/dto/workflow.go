@@ -13,11 +13,12 @@ type WorkflowListQueryDto struct {
 }
 
 type WorkflowTypeDto struct {
-	ID       uint   `json:"id,omitempty"`
-	Name     string `json:"name,omitempty"`
-	OrgId    uint   `json:"org_id,omitempty"`
-	OnlyName string `json:"only_name,omitempty"`
-	System   bool   `json:"system"`
+	ID         uint   `json:"id,omitempty"`
+	Name       string `json:"name,omitempty"`
+	Illustrate string `json:"illustrate,omitempty"`
+	OrgId      uint   `json:"org_id,omitempty"`
+	OnlyName   string `json:"only_name,omitempty"`
+	System     bool   `json:"system"`
 }
 
 type WorkflowTypeQueryDto struct {

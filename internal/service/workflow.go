@@ -145,9 +145,10 @@ func (r *WorkflowService) TypeAdd(post dto.WorkflowTypeDto) (*biz.WorkflowType, 
 
 	// 创建新对象
 	newData := &biz.WorkflowType{
-		Name:     post.Name,
-		OrgId:    post.OrgId,
-		OnlyName: post.OnlyName,
+		Name:       post.Name,
+		OrgId:      post.OrgId,
+		OnlyName:   post.OnlyName,
+		Illustrate: post.Illustrate,
 	}
 	// 是否系统级
 	if post.System {
@@ -172,6 +173,7 @@ func (r *WorkflowService) TypeUpdate(post dto.WorkflowTypeDto) (*biz.WorkflowTyp
 	// 不允许修改OnlyName
 	one.Name = post.Name
 	one.OrgId = post.OrgId
+	one.Illustrate = post.Illustrate
 	// 是否系统级
 	if post.System {
 		one.System = 1

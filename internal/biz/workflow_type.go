@@ -9,7 +9,8 @@ import (
 type WorkflowType struct {
 	BaseModel
 	DeletedAt
-	Name string `json:"name,omitempty"`
+	Name       string `json:"name,omitempty"`
+	Illustrate string `json:"illustrate"`
 	// 所属组织。如果为空则为全局工作流
 	OrgId uint `json:"org_id,omitempty"`
 	// 工作流类型唯一名称。全局唯一名称，此字段用于匹配流程的模型、实例注册等，例如用作模型，表名为【flow_data_test】。该字段只需要填写【test】即可
