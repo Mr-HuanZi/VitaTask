@@ -19,7 +19,7 @@ const (
 	// 等 超时。必须小于 pongWait.
 	pingPeriod = (pongWait * 9) / 10
 	// 消息大小限制
-	maxMessageSize = 10240
+	maxMessageSize = 32768
 )
 
 var upgrader = websocket.Upgrader{
