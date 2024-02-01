@@ -7,7 +7,7 @@ import (
 	"VitaTaskGo/internal/repo"
 	"VitaTaskGo/pkg/config"
 	"VitaTaskGo/pkg/db"
-	exception "VitaTaskGo/pkg/exception"
+	"VitaTaskGo/pkg/exception"
 	"VitaTaskGo/pkg/response"
 	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-type MyCustomClaims struct {
+type UserJwtClaims struct {
 	UserId   uint64
 	Username string
 	jwtGo.StandardClaims
@@ -31,7 +31,7 @@ func GenerateToken(userId uint64, username string) (string, error) {
 	}
 	expiresAt := time.Now().Add(time.Second * time.Duration(expireSeconds)).Unix()
 
-	newClaims := MyCustomClaims{
+	newClaims := UserJwtClaims{
 		UserId:   userId,
 		Username: username,
 		StandardClaims: jwtGo.StandardClaims{
@@ -53,12 +53,12 @@ func GenerateToken(userId uint64, username string) (string, error) {
 }
 
 // ParseToken 解析Token
-func ParseToken(tokenString string) (*MyCustomClaims, error) {
+func ParseToken(tokenString string) (*UserJwtClaims, error) {
 	if tokenString == "" {
 		return nil, exception.NewException(response.SignatureMissing)
 	}
 
-	claims := &MyCustomClaims{} // 将Claims解析到这个结构体
+	claims := &UserJwtClaims{} // 将Claims解析到这个结构体
 	_, err := jwtGo.ParseWithClaims(tokenString, claims, func(token *jwtGo.Token) (interface{}, error) {
 		return []byte(config.Instances.Jwt.Key), nil
 	})
@@ -70,7 +70,7 @@ func ParseToken(tokenString string) (*MyCustomClaims, error) {
 }
 
 // ParseAuthorization 解析Authorization
-func ParseAuthorization(authorization string) (*MyCustomClaims, error) {
+func ParseAuthorization(authorization string) (*UserJwtClaims, error) {
 	if authorization == "" {
 		return nil, exception.NewException(response.SignatureMissing)
 	}
