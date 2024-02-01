@@ -1,14 +1,14 @@
 package workflow
 
 import (
-	"VitaTaskGo/internal/biz"
-	"VitaTaskGo/internal/pkg/exception"
-	"VitaTaskGo/internal/pkg/response"
+	"VitaTaskGo/internal/repo"
+	"VitaTaskGo/pkg/exception"
+	"VitaTaskGo/pkg/response"
 )
 
 type NodeAction interface {
 	ActionName() string
-	Handle(engine *Engine) ([]biz.User, error)
+	Handle(engine *Engine) ([]repo.User, error)
 }
 
 var ActionPool = make(map[string]NodeAction)

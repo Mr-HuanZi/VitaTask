@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"VitaTaskGo/internal/dto"
+	dto2 "VitaTaskGo/internal/api/model/dto"
 	"github.com/duke-git/lancet/v2/cryptor"
 	"github.com/sirupsen/logrus"
 	"regexp"
@@ -45,7 +45,7 @@ func PassFormat(s string) bool {
 	return match
 }
 
-func SliceOperator[T dto.Integer](slice []T, in T, operator string) []T {
+func SliceOperator[T dto2.Integer](slice []T, in T, operator string) []T {
 	// 数组默认长度为map长度,后面append时,不需要重新申请内存和拷贝,效率很高
 	j := 0
 	r := make([]T, len(slice))
@@ -85,7 +85,7 @@ func SliceOperator[T dto.Integer](slice []T, in T, operator string) []T {
 //
 // 该算法的时间复杂度是O(nlogn)，因为排序的复杂度是O(nlogn)，而遍历并删除重复元素的复杂度是O(n)。
 // 该算法的空间复杂度也是O(n)，因为需要创建一个排序后的切片和处理后的切片。
-func SliceUnique[T dto.NumberAndString](slice []T) []T {
+func SliceUnique[T dto2.NumberAndString](slice []T) []T {
 	// 如果有0或1个元素，则返回切片本身。
 	if len(slice) < 2 {
 		return slice
@@ -109,8 +109,8 @@ func SliceUnique[T dto.NumberAndString](slice []T) []T {
 }
 
 // PagedResult 返回通用分页实例
-func PagedResult[T any](t []T, total, page int64) *dto.PagedResult[T] {
-	return &dto.PagedResult[T]{
+func PagedResult[T any](t []T, total, page int64) *dto2.PagedResult[T] {
+	return &dto2.PagedResult[T]{
 		Items: t,
 		Total: total,
 		Page:  page,
@@ -118,8 +118,8 @@ func PagedResult[T any](t []T, total, page int64) *dto.PagedResult[T] {
 }
 
 // EmptyPagedResult 空的通用分页实例
-func EmptyPagedResult[T any]() *dto.PagedResult[T] {
-	return &dto.PagedResult[T]{
+func EmptyPagedResult[T any]() *dto2.PagedResult[T] {
+	return &dto2.PagedResult[T]{
 		Items: nil,
 		Total: 0,
 		Page:  1,

@@ -1,12 +1,12 @@
 package workflow
 
 import (
-	"VitaTaskGo/internal/biz"
-	"VitaTaskGo/internal/data"
+	"VitaTaskGo/internal/api/data"
 	"VitaTaskGo/internal/pkg/auth"
-	"VitaTaskGo/internal/pkg/db"
-	"VitaTaskGo/internal/pkg/exception"
-	"VitaTaskGo/internal/pkg/response"
+	"VitaTaskGo/internal/repo"
+	"VitaTaskGo/pkg/db"
+	"VitaTaskGo/pkg/exception"
+	"VitaTaskGo/pkg/response"
 	"errors"
 	"github.com/duke-git/lancet/v2/random"
 	"github.com/duke-git/lancet/v2/slice"
@@ -24,11 +24,11 @@ type Engine struct {
 	ctx            *gin.Context
 
 	typeId     uint
-	typeData   *biz.WorkflowType
+	typeData   *repo.WorkflowType
 	workflowId uint
-	workflow   *biz.Workflow
-	operator   []biz.WorkflowOperator
-	nodeInfo   *biz.WorkflowNode
+	workflow   *repo.Workflow
+	operator   []repo.WorkflowOperator
+	nodeInfo   *repo.WorkflowNode
 	Repo       EngineRepo
 	// 是否初始化
 	initialized bool
@@ -37,10 +37,10 @@ type Engine struct {
 }
 
 type EngineRepo struct {
-	workflowTypeRepo     biz.WorkflowTypeRepo
-	workflowRepo         biz.WorkflowRepo
-	workflowOperatorRepo biz.WorkflowOperatorRepo
-	workflowNodeRepo     biz.WorkflowNodeRepo
+	workflowTypeRepo     repo.WorkflowTypeRepo
+	workflowRepo         repo.WorkflowRepo
+	workflowOperatorRepo repo.WorkflowOperatorRepo
+	workflowNodeRepo     repo.WorkflowNodeRepo
 }
 
 // Open 打开一个工作流
@@ -159,7 +159,7 @@ func (engine *Engine) Initiate() error {
 		}
 
 		// 保存工作流
-		workflow := &biz.Workflow{
+		workflow := &repo.Workflow{
 			TypeId:    engine.typeId,
 			TypeName:  engine.typeData.Name,
 			OrgId:     0,       //组织ID，先设为0
@@ -204,7 +204,7 @@ func (engine *Engine) Initiate() error {
 			// 获取下一个节点操作人
 			operators, _ := engine.GetOperator(node)
 			for _, operator := range operators {
-				wo := biz.WorkflowOperator{
+				wo := repo.WorkflowOperator{
 					UserId:     operator.ID,
 					Nickname:   operator.UserNickname,
 					Node:       workflow.Node,
@@ -244,7 +244,7 @@ func (engine *Engine) ExamineApprove() error {
 
 	// todo 调用Hook
 
-	var nextNode *biz.WorkflowNode
+	var nextNode *repo.WorkflowNode
 	action, ok := engine.formData["action"]
 	if !ok || action == "next" {
 		/* 工作流正常流转 */
@@ -330,7 +330,7 @@ func (engine *Engine) ExamineApprove() error {
 		// todo 执行钩子
 
 		// 下一个节点的操作人
-		var operators []biz.User
+		var operators []repo.User
 		/* 判断工作流状态 Start */
 		if engine.workflow.Status == StatusCompleted {
 			/* 工作流已完成，删除该工作流的所有操作人 */
@@ -369,7 +369,7 @@ func (engine *Engine) ExamineApprove() error {
 		// 保存操作人
 		if len(operators) > 0 {
 			for _, operator := range operators {
-				wo := biz.WorkflowOperator{
+				wo := repo.WorkflowOperator{
 					UserId:     operator.ID,
 					Nickname:   operator.UserNickname,
 					Node:       engine.workflow.Node,
@@ -391,7 +391,7 @@ func (engine *Engine) ExamineApprove() error {
 }
 
 // NextNode 获取当前工作流的下一个节点
-func (engine *Engine) NextNode() (*biz.WorkflowNode, error) {
+func (engine *Engine) NextNode() (*repo.WorkflowNode, error) {
 	// 假设当前节点是0
 	var currNode = 0
 	// 先获取当前工作流的节点
@@ -423,9 +423,9 @@ func (engine *Engine) NextNode() (*biz.WorkflowNode, error) {
 	return node, nil
 }
 
-func (engine *Engine) GetOperator(workflowNode *biz.WorkflowNode) ([]biz.User, error) {
+func (engine *Engine) GetOperator(workflowNode *repo.WorkflowNode) ([]repo.User, error) {
 	var (
-		userList = make([]biz.User, 0)
+		userList = make([]repo.User, 0)
 		err      error
 	)
 
@@ -464,7 +464,7 @@ func (engine *Engine) GetOperator(workflowNode *biz.WorkflowNode) ([]biz.User, e
 
 	// 如果用户列表还是空的，取当前登录人
 	if len(userList) <= 0 {
-		var u *biz.User
+		var u *repo.User
 		u, err = auth.CurrUser(engine.ctx)
 		if err != nil {
 			return nil, err

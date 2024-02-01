@@ -1,8 +1,8 @@
 package workflow
 
 import (
-	"VitaTaskGo/internal/biz"
-	"VitaTaskGo/internal/data"
+	"VitaTaskGo/internal/api/data"
+	"VitaTaskGo/internal/repo"
 )
 
 type AdministratorNodeAction struct {
@@ -15,7 +15,7 @@ func (r *AdministratorNodeAction) ActionName() string {
 	return "管理员操作"
 }
 
-func (r *AdministratorNodeAction) Handle(engine *Engine) ([]biz.User, error) {
+func (r *AdministratorNodeAction) Handle(engine *Engine) ([]repo.User, error) {
 	return data.NewUserRepo(engine.GetCorrectOrm(), engine.ctx).GetAdministrators()
 }
 
@@ -23,14 +23,14 @@ func (r *InitiatorNodeAction) ActionName() string {
 	return "发起人操作"
 }
 
-func (r *InitiatorNodeAction) Handle(engine *Engine) ([]biz.User, error) {
+func (r *InitiatorNodeAction) Handle(engine *Engine) ([]repo.User, error) {
 	// 发起人操作
 	u, err := data.NewUserRepo(engine.GetCorrectOrm(), engine.ctx).GetUser(engine.workflow.Promoter)
 	if err != nil {
 		return nil, err
 	}
 
-	return []biz.User{*u}, nil
+	return []repo.User{*u}, nil
 }
 
 // Init 工作流模块初始化

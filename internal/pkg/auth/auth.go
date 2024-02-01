@@ -1,14 +1,14 @@
 package auth
 
 import (
-	"VitaTaskGo/internal/biz"
-	"VitaTaskGo/internal/constant"
-	"VitaTaskGo/internal/data"
+	"VitaTaskGo/internal/api/data"
 	"VitaTaskGo/internal/pkg"
-	"VitaTaskGo/internal/pkg/config"
-	"VitaTaskGo/internal/pkg/db"
-	"VitaTaskGo/internal/pkg/exception"
-	"VitaTaskGo/internal/pkg/response"
+	"VitaTaskGo/internal/pkg/constant"
+	"VitaTaskGo/internal/repo"
+	"VitaTaskGo/pkg/config"
+	"VitaTaskGo/pkg/db"
+	exception "VitaTaskGo/pkg/exception"
+	"VitaTaskGo/pkg/response"
 	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -83,7 +83,7 @@ func ParseAuthorization(authorization string) (*MyCustomClaims, error) {
 
 // CurrUser 获取当前登录用户
 // 如果用户被禁用会返回错误
-func CurrUser(ctx *gin.Context) (*biz.User, error) {
+func CurrUser(ctx *gin.Context) (*repo.User, error) {
 	var uid uint64
 
 	currUid, ok := ctx.Get(constant.CurrUidKey)
@@ -124,6 +124,6 @@ func CurrUser(ctx *gin.Context) (*biz.User, error) {
 }
 
 // IsSuper 是否超级账户
-func IsSuper(user *biz.User) bool {
+func IsSuper(user *repo.User) bool {
 	return user.Super == 1
 }
