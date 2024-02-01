@@ -15,7 +15,10 @@ func main() {
 	}
 
 	// 初始化日志
-	log.InitLogsDriver()
+	err = log.InitLogsDriver("app.log", "gin.log")
+	if err != nil {
+		panic(err)
+	}
 	// 初始化数据库
 	initDatabases()
 	// 命令行处理
