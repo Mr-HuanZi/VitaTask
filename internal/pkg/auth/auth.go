@@ -24,7 +24,7 @@ type UserJwtClaims struct {
 
 // GenerateToken 生成Token
 func GenerateToken(userId uint64, username string) (string, error) {
-	expireSeconds := config.Instances.Jwt.ExpireSeconds
+	expireSeconds := config.Get().Jwt.ExpireSeconds
 	if expireSeconds <= 0 {
 		// 默认10分钟过期
 		expireSeconds = 600
@@ -40,12 +40,12 @@ func GenerateToken(userId uint64, username string) (string, error) {
 			// 签发时间
 			IssuedAt: time.Now().Unix(),
 			// 签发人
-			Issuer: config.Instances.Jwt.Issuer,
+			Issuer: config.Get().Jwt.Issuer,
 		},
 	}
 	token := jwtGo.NewWithClaims(jwtGo.SigningMethodHS256, newClaims)
 
-	tokenString, err := token.SignedString([]byte(config.Instances.Jwt.Key))
+	tokenString, err := token.SignedString([]byte(config.Get().Jwt.Key))
 	if err != nil {
 		return "", err
 	}
@@ -60,7 +60,7 @@ func ParseToken(tokenString string) (*UserJwtClaims, error) {
 
 	claims := &UserJwtClaims{} // 将Claims解析到这个结构体
 	_, err := jwtGo.ParseWithClaims(tokenString, claims, func(token *jwtGo.Token) (interface{}, error) {
-		return []byte(config.Instances.Jwt.Key), nil
+		return []byte(config.Get().Jwt.Key), nil
 	})
 
 	if err != nil {

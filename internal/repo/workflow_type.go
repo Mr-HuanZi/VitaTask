@@ -20,7 +20,7 @@ type WorkflowType struct {
 }
 
 func (receiver *WorkflowType) TableName() string {
-	return config.Instances.Mysql.Prefix + "workflow_type"
+	return config.Get().Mysql.Prefix + "workflow_type"
 }
 
 type WorkflowTypeRepo interface {

@@ -12,5 +12,5 @@ type OrgUser struct {
 }
 
 func (receiver OrgUser) TableName() string {
-	return config.Instances.Mysql.Prefix + "org_user"
+	return config.Get().Mysql.Prefix + "org_user"
 }

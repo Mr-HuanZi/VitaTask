@@ -18,7 +18,7 @@ type TaskLog struct {
 }
 
 func (receiver TaskLog) TableName() string {
-	return config.Instances.Mysql.Prefix + "task_log"
+	return config.Get().Mysql.Prefix + "task_log"
 }
 
 type TaskLogRepo interface {

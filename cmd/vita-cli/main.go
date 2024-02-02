@@ -29,12 +29,12 @@ func main() {
 func initDatabases() {
 	err := db.Init(db.DsnConfig{
 		Drive:  "mysql",
-		Host:   config.Instances.Mysql.Host,
-		Port:   config.Instances.Mysql.Port,
-		User:   config.Instances.Mysql.User,
-		Pass:   config.Instances.Mysql.Password,
-		Dbname: config.Instances.Mysql.DbName,
-		Prefix: config.Instances.Mysql.Prefix,
+		Host:   config.Get().Mysql.Host,
+		Port:   config.Get().Mysql.Port,
+		User:   config.Get().Mysql.User,
+		Pass:   config.Get().Mysql.Password,
+		Dbname: config.Get().Mysql.DbName,
+		Prefix: config.Get().Mysql.Prefix,
 	})
 
 	if err != nil {

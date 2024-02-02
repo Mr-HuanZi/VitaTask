@@ -14,7 +14,7 @@ type TaskGroup struct {
 }
 
 func (receiver TaskGroup) TableName() string {
-	return config.Instances.Mysql.Prefix + "task_group"
+	return config.Get().Mysql.Prefix + "task_group"
 }
 
 type TaskGroupRepo interface {

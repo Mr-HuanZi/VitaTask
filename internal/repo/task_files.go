@@ -20,7 +20,7 @@ type TaskFiles struct {
 }
 
 func (receiver TaskFiles) TableName() string {
-	return config.Instances.Mysql.Prefix + "task_files"
+	return config.Get().Mysql.Prefix + "task_files"
 }
 
 type TaskFilesRepo interface {

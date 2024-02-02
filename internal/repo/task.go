@@ -30,7 +30,7 @@ type Task struct {
 }
 
 func (receiver Task) TableName() string {
-	return config.Instances.Mysql.Prefix + "task"
+	return config.Get().Mysql.Prefix + "task"
 }
 
 type TaskRepo interface {

@@ -34,7 +34,7 @@ type User struct {
 }
 
 func (receiver *User) TableName() string {
-	return config.Instances.Mysql.Prefix + "user"
+	return config.Get().Mysql.Prefix + "user"
 }
 
 func (receiver *User) AfterFind(*gorm.DB) (err error) {

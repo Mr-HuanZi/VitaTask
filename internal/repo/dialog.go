@@ -13,7 +13,7 @@ type Dialog struct {
 }
 
 func (receiver Dialog) TableName() string {
-	return config.Instances.Mysql.Prefix + "dialog"
+	return config.Get().Mysql.Prefix + "dialog"
 }
 
 type DialogRepo interface {

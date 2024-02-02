@@ -13,7 +13,7 @@ type TaskMember struct {
 }
 
 func (receiver TaskMember) TableName() string {
-	return config.Instances.Mysql.Prefix + "task_member"
+	return config.Get().Mysql.Prefix + "task_member"
 }
 
 type TaskMemberRepo interface {

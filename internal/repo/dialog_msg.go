@@ -18,7 +18,7 @@ type DialogMsg struct {
 }
 
 func (receiver DialogMsg) TableName() string {
-	return config.Instances.Mysql.Prefix + "dialog_msg"
+	return config.Get().Mysql.Prefix + "dialog_msg"
 }
 
 type DialogMsgRepo interface {

@@ -18,7 +18,7 @@ type WorkflowNode struct {
 }
 
 func (receiver *WorkflowNode) TableName() string {
-	return config.Instances.Mysql.Prefix + "workflow_node"
+	return config.Get().Mysql.Prefix + "workflow_node"
 }
 
 type WorkflowNodeRepo interface {

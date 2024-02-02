@@ -87,11 +87,11 @@ func (receiver MemberService) ResetPassword(uid uint64) error {
 		return exception.NewException(response.UserNotFound)
 	}
 	// 校验密码格式
-	if !pkg.PassFormat(config.Instances.Member.DefaultPass) {
+	if !pkg.PassFormat(config.Get().Member.DefaultPass) {
 		return exception.NewException(response.RegPassFormatError)
 	}
 	// 生成新密码
-	userPass := pkg.Encryption(config.Instances.Member.DefaultPass)
+	userPass := pkg.Encryption(config.Get().Member.DefaultPass)
 	// 保存新密码
 	return receiver.repo.UpdateUserPass(uid, userPass)
 }

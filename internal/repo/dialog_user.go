@@ -11,7 +11,7 @@ type DialogUser struct {
 }
 
 func (receiver DialogUser) TableName() string {
-	return config.Instances.Mysql.Prefix + "dialog_user"
+	return config.Get().Mysql.Prefix + "dialog_user"
 }
 
 type DialogUserRepo interface {

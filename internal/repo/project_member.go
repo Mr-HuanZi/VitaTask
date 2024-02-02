@@ -17,7 +17,7 @@ type ProjectMember struct {
 }
 
 func (receiver ProjectMember) TableName() string {
-	return config.Instances.Mysql.Prefix + "project_member"
+	return config.Get().Mysql.Prefix + "project_member"
 }
 
 type ProjectMemberRepo interface {

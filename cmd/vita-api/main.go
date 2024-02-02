@@ -41,19 +41,19 @@ func main() {
 	// 注册WebSocket路由
 	api.WebSocketRouters(r)
 	// 绑定Host与Port
-	_ = r.Run(config.Instances.App.Host + ":" + strconv.Itoa(config.Instances.App.Port))
+	_ = r.Run(config.Get().App.Host + ":" + strconv.Itoa(config.Get().App.Port))
 }
 
 // 初始化数据库
 func initDatabases() {
 	err := db.Init(db.DsnConfig{
 		Drive:  "mysql",
-		Host:   config.Instances.Mysql.Host,
-		Port:   config.Instances.Mysql.Port,
-		User:   config.Instances.Mysql.User,
-		Pass:   config.Instances.Mysql.Password,
-		Dbname: config.Instances.Mysql.DbName,
-		Prefix: config.Instances.Mysql.Prefix,
+		Host:   config.Get().Mysql.Host,
+		Port:   config.Get().Mysql.Port,
+		User:   config.Get().Mysql.User,
+		Pass:   config.Get().Mysql.Password,
+		Dbname: config.Get().Mysql.DbName,
+		Prefix: config.Get().Mysql.Prefix,
 	})
 
 	if err != nil {

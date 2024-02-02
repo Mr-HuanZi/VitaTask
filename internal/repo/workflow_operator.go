@@ -20,7 +20,7 @@ type WorkflowOperator struct {
 }
 
 func (receiver *WorkflowOperator) TableName() string {
-	return config.Instances.Mysql.Prefix + "workflow_operator"
+	return config.Get().Mysql.Prefix + "workflow_operator"
 }
 
 type WorkflowOperatorRepo interface {

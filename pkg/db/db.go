@@ -51,7 +51,7 @@ func Init(dsnConfig DsnConfig) error {
 	)
 
 	// 调试模式下启用SQL日志
-	if config.Instances.App.Debug {
+	if config.Get().App.Debug {
 		newLogger := logger.New(
 			&GormWriter{},
 			logger.Config{

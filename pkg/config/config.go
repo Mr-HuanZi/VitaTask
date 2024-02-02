@@ -93,3 +93,8 @@ func Load(filePath string) error {
 	}
 	return nil
 }
+
+// Get 获取配置实例
+func Get() *Config {
+	return Instances
+}

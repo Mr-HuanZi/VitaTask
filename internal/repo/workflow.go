@@ -33,7 +33,7 @@ type Workflow struct {
 }
 
 func (receiver *Workflow) TableName() string {
-	return config.Instances.Mysql.Prefix + "workflow"
+	return config.Get().Mysql.Prefix + "workflow"
 }
 
 type WorkflowRepo interface {

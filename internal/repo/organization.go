@@ -15,5 +15,5 @@ type Organization struct {
 }
 
 func (receiver Organization) TableName() string {
-	return config.Instances.Mysql.Prefix + "organization"
+	return config.Get().Mysql.Prefix + "organization"
 }

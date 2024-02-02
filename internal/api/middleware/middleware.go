@@ -16,7 +16,7 @@ import (
 
 // Register 注册全局中间件
 func Register(r *gin.Engine) {
-	if config.Instances.App.Debug {
+	if config.Get().App.Debug {
 		//r.Use(RequestRecord())
 	}
 }
