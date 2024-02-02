@@ -2,7 +2,6 @@ package repo
 
 import (
 	"VitaTaskGo/internal/api/model/dto"
-	"VitaTaskGo/pkg/config"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +17,7 @@ type WorkflowNode struct {
 }
 
 func (receiver *WorkflowNode) TableName() string {
-	return config.Get().Mysql.Prefix + "workflow_node"
+	return GetTablePrefix() + "workflow_node"
 }
 
 type WorkflowNodeRepo interface {

@@ -2,7 +2,6 @@ package repo
 
 import (
 	"VitaTaskGo/internal/api/model/dto"
-	"VitaTaskGo/pkg/config"
 )
 
 type Task struct {
@@ -30,7 +29,7 @@ type Task struct {
 }
 
 func (receiver Task) TableName() string {
-	return config.Get().Mysql.Prefix + "task"
+	return GetTablePrefix() + "task"
 }
 
 type TaskRepo interface {

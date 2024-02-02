@@ -2,7 +2,6 @@ package repo
 
 import (
 	"VitaTaskGo/internal/api/model/dto"
-	"VitaTaskGo/pkg/config"
 	"VitaTaskGo/pkg/time_tool"
 	"gorm.io/gorm"
 	"time"
@@ -34,7 +33,7 @@ type User struct {
 }
 
 func (receiver *User) TableName() string {
-	return config.Get().Mysql.Prefix + "user"
+	return GetTablePrefix() + "user"
 }
 
 func (receiver *User) AfterFind(*gorm.DB) (err error) {

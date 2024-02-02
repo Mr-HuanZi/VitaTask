@@ -1,9 +1,5 @@
 package repo
 
-import (
-	"VitaTaskGo/pkg/config"
-)
-
 type OrgUser struct {
 	ID    int64  `gorm:"primaryKey"`
 	Uid   uint64 `gorm:"index:uid"`
@@ -12,5 +8,5 @@ type OrgUser struct {
 }
 
 func (receiver OrgUser) TableName() string {
-	return config.Get().Mysql.Prefix + "org_user"
+	return GetTablePrefix() + "org_user"
 }

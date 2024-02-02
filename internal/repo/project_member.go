@@ -2,7 +2,6 @@ package repo
 
 import (
 	"VitaTaskGo/internal/api/model/dto"
-	"VitaTaskGo/pkg/config"
 )
 
 type ProjectMember struct {
@@ -17,7 +16,7 @@ type ProjectMember struct {
 }
 
 func (receiver ProjectMember) TableName() string {
-	return config.Get().Mysql.Prefix + "project_member"
+	return GetTablePrefix() + "project_member"
 }
 
 type ProjectMemberRepo interface {

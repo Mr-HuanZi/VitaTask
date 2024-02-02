@@ -1,9 +1,5 @@
 package repo
 
-import (
-	"VitaTaskGo/pkg/config"
-)
-
 type DialogMsg struct {
 	BaseModel
 	ID       uint64  `json:"id" gorm:"primaryKey"`
@@ -18,7 +14,7 @@ type DialogMsg struct {
 }
 
 func (receiver DialogMsg) TableName() string {
-	return config.Get().Mysql.Prefix + "dialog_msg"
+	return GetTablePrefix() + "dialog_msg"
 }
 
 type DialogMsgRepo interface {

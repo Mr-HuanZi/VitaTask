@@ -2,7 +2,6 @@ package repo
 
 import (
 	"VitaTaskGo/internal/api/model/dto"
-	"VitaTaskGo/pkg/config"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +19,7 @@ type WorkflowType struct {
 }
 
 func (receiver *WorkflowType) TableName() string {
-	return config.Get().Mysql.Prefix + "workflow_type"
+	return GetTablePrefix() + "workflow_type"
 }
 
 type WorkflowTypeRepo interface {

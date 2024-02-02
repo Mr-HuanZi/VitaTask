@@ -1,9 +1,5 @@
 package repo
 
-import (
-	"VitaTaskGo/pkg/config"
-)
-
 type TaskMember struct {
 	ID       uint   `json:"id" gorm:"primaryKey"`
 	TaskId   uint   `json:"task_id" gorm:"index:task_id"`
@@ -13,7 +9,7 @@ type TaskMember struct {
 }
 
 func (receiver TaskMember) TableName() string {
-	return config.Get().Mysql.Prefix + "task_member"
+	return GetTablePrefix() + "task_member"
 }
 
 type TaskMemberRepo interface {

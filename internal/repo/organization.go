@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"VitaTaskGo/pkg/config"
 	"time"
 )
 
@@ -15,5 +14,5 @@ type Organization struct {
 }
 
 func (receiver Organization) TableName() string {
-	return config.Get().Mysql.Prefix + "organization"
+	return GetTablePrefix() + "organization"
 }

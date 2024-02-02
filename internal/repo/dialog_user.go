@@ -1,9 +1,5 @@
 package repo
 
-import (
-	"VitaTaskGo/pkg/config"
-)
-
 type DialogUser struct {
 	BaseModel
 	DialogId uint   `json:"dialog_id" gorm:"default:0;not null;"`
@@ -11,7 +7,7 @@ type DialogUser struct {
 }
 
 func (receiver DialogUser) TableName() string {
-	return config.Get().Mysql.Prefix + "dialog_user"
+	return GetTablePrefix() + "dialog_user"
 }
 
 type DialogUserRepo interface {

@@ -1,9 +1,5 @@
 package repo
 
-import (
-	"VitaTaskGo/pkg/config"
-)
-
 type TaskFiles struct {
 	BaseModel
 	DeletedAt
@@ -20,7 +16,7 @@ type TaskFiles struct {
 }
 
 func (receiver TaskFiles) TableName() string {
-	return config.Get().Mysql.Prefix + "task_files"
+	return GetTablePrefix() + "task_files"
 }
 
 type TaskFilesRepo interface {

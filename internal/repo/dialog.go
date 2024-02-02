@@ -1,9 +1,5 @@
 package repo
 
-import (
-	"VitaTaskGo/pkg/config"
-)
-
 type Dialog struct {
 	BaseModel
 	Type   string `json:"type" gorm:"size:30;default:''"`
@@ -13,7 +9,7 @@ type Dialog struct {
 }
 
 func (receiver Dialog) TableName() string {
-	return config.Get().Mysql.Prefix + "dialog"
+	return GetTablePrefix() + "dialog"
 }
 
 type DialogRepo interface {

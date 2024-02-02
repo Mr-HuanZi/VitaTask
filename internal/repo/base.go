@@ -1,6 +1,9 @@
 package repo
 
-import "gorm.io/gorm"
+import (
+	"VitaTaskGo/pkg/config"
+	"gorm.io/gorm"
+)
 
 type BaseModel struct {
 	ID         uint  `json:"id,omitempty" gorm:"primaryKey"`
@@ -22,4 +25,9 @@ type BaseRepo[T any, E comparable] interface {
 	Delete(id E) error
 	Get(id E) (*T, error)
 	UpdateField(id E, field string, value interface{}) error
+}
+
+// GetTablePrefix 获取数据库表前缀
+func GetTablePrefix() string {
+	return config.Get().Mysql.Prefix
 }

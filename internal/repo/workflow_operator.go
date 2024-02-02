@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"VitaTaskGo/pkg/config"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +19,7 @@ type WorkflowOperator struct {
 }
 
 func (receiver *WorkflowOperator) TableName() string {
-	return config.Get().Mysql.Prefix + "workflow_operator"
+	return GetTablePrefix() + "workflow_operator"
 }
 
 type WorkflowOperatorRepo interface {
