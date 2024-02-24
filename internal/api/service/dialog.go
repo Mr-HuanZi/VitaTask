@@ -6,7 +6,7 @@ import (
 	"VitaTaskGo/internal/pkg"
 	"VitaTaskGo/internal/pkg/auth"
 	"VitaTaskGo/internal/pkg/constant"
-	"VitaTaskGo/internal/pkg/ws"
+	"VitaTaskGo/internal/pkg/gateway"
 	"VitaTaskGo/internal/repo"
 	"VitaTaskGo/pkg/exception"
 	"VitaTaskGo/pkg/response"
@@ -84,8 +84,8 @@ func (receiver DialogService) SendToDialog(dialogId uint, msgData *repo.DialogMs
 		}
 
 		// 只推送给在线的成员
-		if ws.Online(member.UserId) {
-			err := ws.Send(ws.GetClient(member.UserId), "chat", msgData)
+		if gateway.Online(member.UserId) {
+			err := gateway.Send(gateway.GetClient(member.UserId), "chat", msgData)
 			if err != nil {
 				return err
 			}

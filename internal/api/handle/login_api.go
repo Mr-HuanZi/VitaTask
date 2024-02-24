@@ -3,7 +3,7 @@ package handle
 import (
 	"VitaTaskGo/internal/api/model/dto"
 	"VitaTaskGo/internal/api/service"
-	"VitaTaskGo/internal/pkg/ws"
+	"VitaTaskGo/internal/pkg/gateway"
 	"VitaTaskGo/pkg/db"
 	"VitaTaskGo/pkg/response"
 	"github.com/gin-gonic/gin"
@@ -39,7 +39,7 @@ func (*LoginApi) Login(ctx *gin.Context) {
 		"user_nickname": user.UserNickname,
 		"user_login":    user.UserLogin,
 		// 生成websocket需要的Token，一次性的，每次登录后重新生成
-		"ws_token": ws.GenerateToken([]string{user.UserLogin, user.UserLogin}),
+		"ws_token": gateway.GenerateToken([]string{user.UserLogin, user.UserLogin}),
 	}))
 }
 

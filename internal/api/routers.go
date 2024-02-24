@@ -3,7 +3,6 @@ package api
 import (
 	"VitaTaskGo/internal/api/handle"
 	"VitaTaskGo/internal/api/middleware"
-	"VitaTaskGo/internal/pkg/ws"
 	"github.com/gin-gonic/gin"
 )
 
@@ -151,11 +150,4 @@ func Routers(r *gin.Engine) {
 			twoG.POST("actions", workflowApi.Actions)
 		}
 	}
-}
-
-func WebSocketRouters(r *gin.Engine) {
-	// 聊天WS，需要校验登录
-	r.GET("chat/", middleware.CheckLogin(), func(ctx *gin.Context) {
-		ws.ClientHandle(ctx)
-	})
 }

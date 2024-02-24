@@ -38,8 +38,6 @@ func main() {
 	middleware.Register(r)
 	// 注册路由
 	api.Routers(r)
-	// 注册WebSocket路由
-	api.WebSocketRouters(r)
 	// 绑定Host与Port
 	_ = r.Run(config.Get().App.Host + ":" + strconv.Itoa(config.Get().App.Port))
 }

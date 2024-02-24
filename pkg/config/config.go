@@ -10,11 +10,12 @@ import (
 var Instances *Config
 
 type Config struct {
-	Jwt    JwtConfig    `yaml:"auth"`
-	Mysql  MySQLConfig  `yaml:"mysql"`
-	Redis  RedisConfig  `yaml:"redis"`
-	App    AppConfig    `yaml:"app"`
-	Member MemberConfig `yaml:"member"`
+	Jwt     JwtConfig     `yaml:"auth"`
+	Mysql   MySQLConfig   `yaml:"mysql"`
+	Redis   RedisConfig   `yaml:"redis"`
+	App     AppConfig     `yaml:"app"`
+	Member  MemberConfig  `yaml:"member"`
+	Gateway GatewayConfig `yaml:"gateway"`
 }
 
 type JwtConfig struct {
@@ -46,6 +47,11 @@ type AppConfig struct {
 
 type MemberConfig struct {
 	DefaultPass string `yaml:"defaultPass"`
+}
+
+type GatewayConfig struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
 func NewConfig() *Config {
