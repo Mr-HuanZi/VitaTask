@@ -34,6 +34,20 @@ func (receiver *UserClientPool) Unbind(userId string) {
 	}
 }
 
+// GetClientID 获取ClientID
+func (receiver *UserClientPool) GetClientID(userId string) string {
+	receiver.rw.RLock()
+	defer receiver.rw.RUnlock()
+	if _, ok := receiver.userPool[userId]; ok {
+		return receiver.userPool[userId]
+	}
+	return ""
+}
+
 func BingUserToClient(userId, ClientId string) {
 	UserPool.BingUserToClient(userId, ClientId)
+}
+
+func GetClientID(userId string) string {
+	return UserPool.GetClientID(userId)
 }

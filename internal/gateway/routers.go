@@ -9,8 +9,9 @@ func Routers(r *gin.Engine) {
 	group := r.Group("gateway")
 
 	{
-		registerApi := handle.NewRegisterApi()
-		group.POST("bind", registerApi.BindUser)
+		chatApi := handle.NewChatApi()
+		group.POST("send/user", chatApi.SendToUser)
+		group.POST("send/users", chatApi.SendToUsers)
 	}
 }
 

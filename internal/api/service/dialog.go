@@ -6,13 +6,11 @@ import (
 	"VitaTaskGo/internal/pkg"
 	"VitaTaskGo/internal/pkg/auth"
 	"VitaTaskGo/internal/pkg/constant"
-	"VitaTaskGo/internal/pkg/gateway"
 	"VitaTaskGo/internal/repo"
 	"VitaTaskGo/pkg/exception"
 	"VitaTaskGo/pkg/response"
 	"github.com/duke-git/lancet/v2/slice"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -84,13 +82,13 @@ func (receiver DialogService) SendToDialog(dialogId uint, msgData *repo.DialogMs
 		}
 
 		// 只推送给在线的成员
-		if gateway.Online(member.UserId) {
-			err := gateway.Send(gateway.GetClient(member.UserId), "chat", msgData)
-			if err != nil {
-				return err
-			}
-			logrus.Debugf("已将消息发送给UID[%d]", member.UserId)
-		}
+		//if gateway.Online(strconv.FormatUint(member.UserId, 10)) {
+		//	err := gateway.Send(gateway.GetClient(strconv.FormatUint(member.UserId, 10)), msgData)
+		//	if err != nil {
+		//		return err
+		//	}
+		//	logrus.Debugf("已将消息发送给UID[%d]", member.UserId)
+		//}
 	}
 
 	return nil

@@ -1,22 +1,19 @@
 package handle
 
-import "github.com/gin-gonic/gin"
+import (
+	"VitaTaskGo/internal/pkg/gateway"
+	"VitaTaskGo/pkg/response"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
 
-type RegisterApi struct {
-}
-
-func NewRegisterApi() *RegisterApi {
-	return &RegisterApi{}
-}
-
-func (receiver *RegisterApi) BindUser(ctx *gin.Context) {
-
-}
-
-func (receiver *RegisterApi) SendToUser(ctx *gin.Context) {
-
-}
-
-func (receiver *RegisterApi) SendToUsers(ctx *gin.Context) {
-
+func ClientHandle(ctx *gin.Context) {
+	// 创建客户端实例
+	client := gateway.NewChatClient()
+	// 创建连接
+	err := client.Conn(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.Exception(response.SystemFail))
+		return
+	}
 }
