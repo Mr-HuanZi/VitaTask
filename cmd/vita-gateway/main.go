@@ -33,7 +33,7 @@ func initialize() {
 		panic(err)
 	}
 	// 初始化日志
-	logErr := log.InitLogsDriver("app.log", "gin.log")
+	logErr := log.InitLogsDriver("gateway.log", "gateway-gin.log")
 	if logErr != nil {
 		panic(logErr)
 	}
