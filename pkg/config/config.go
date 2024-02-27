@@ -78,6 +78,13 @@ func NewConfig() *Config {
 			Port: 8081,
 			Host: "localhost",
 		},
+		Gateway: GatewayConfig{
+			Host: "127.0.0.1",
+			Port: 8082,
+		},
+		Member: MemberConfig{
+			DefaultPass: "123456",
+		},
 	}
 }
 

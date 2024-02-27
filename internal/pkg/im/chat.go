@@ -7,15 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
-var host = ""
-
-func init() {
-	host = config.Get().Gateway.Host
-}
-
-func SendUser(userid string, msg string) error {
+func SendUser(userid string, msg interface{}) error {
 	postData := map[string]interface{}{
 		"msg":    msg,
 		"userid": userid,
@@ -24,7 +19,11 @@ func SendUser(userid string, msg string) error {
 	if jsonErr != nil {
 		return jsonErr
 	}
-	resp, err := http.Post(host+"/send/user", "application/json", bytes.NewBuffer(jsonData))
+
+	// 获取网关host
+	host := getHost()
+	// 向网关发送请求
+	resp, err := http.Post(host+"/gateway/send/user", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
@@ -36,7 +35,7 @@ func SendUser(userid string, msg string) error {
 	return nil
 }
 
-func SendUsers(users []string, msg string) error {
+func SendUsers(users []string, msg interface{}) error {
 	postData := map[string]interface{}{
 		"msg":   msg,
 		"users": users,
@@ -45,7 +44,11 @@ func SendUsers(users []string, msg string) error {
 	if jsonErr != nil {
 		return jsonErr
 	}
-	resp, err := http.Post(host+"/send/users", "application/json", bytes.NewBuffer(jsonData))
+
+	// 获取网关host
+	host := getHost()
+	// 向网关发送请求
+	resp, err := http.Post(host+"/gateway/send/users", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
@@ -55,4 +58,15 @@ func SendUsers(users []string, msg string) error {
 	}
 
 	return nil
+}
+
+// 判断host是否包含了协议
+func getHost() string {
+	host := config.Get().Gateway.Host
+	port := config.Get().Gateway.Port
+	if !strings.HasPrefix(host, "http") {
+		host = "http://" + host
+	}
+
+	return fmt.Sprintf("%s:%d", host, port)
 }

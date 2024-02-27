@@ -6,12 +6,14 @@ import (
 	"VitaTaskGo/internal/pkg"
 	"VitaTaskGo/internal/pkg/auth"
 	"VitaTaskGo/internal/pkg/constant"
+	"VitaTaskGo/internal/pkg/im"
 	"VitaTaskGo/internal/repo"
 	"VitaTaskGo/pkg/exception"
 	"VitaTaskGo/pkg/response"
 	"github.com/duke-git/lancet/v2/slice"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type DialogService struct {
@@ -74,6 +76,8 @@ func (receiver DialogService) SendToDialog(dialogId uint, msgData *repo.DialogMs
 		return err
 	}
 
+	toList := make([]string, 0)
+
 	// 将消息推送给对话成员
 	for _, member := range members {
 		// 跳过自己
@@ -81,14 +85,14 @@ func (receiver DialogService) SendToDialog(dialogId uint, msgData *repo.DialogMs
 			continue
 		}
 
-		// 只推送给在线的成员
-		//if gateway.Online(strconv.FormatUint(member.UserId, 10)) {
-		//	err := gateway.Send(gateway.GetClient(strconv.FormatUint(member.UserId, 10)), msgData)
-		//	if err != nil {
-		//		return err
-		//	}
-		//	logrus.Debugf("已将消息发送给UID[%d]", member.UserId)
-		//}
+		toList = append(toList, strconv.FormatUint(member.UserId, 10))
+	}
+
+	if len(toList) > 0 {
+		err := im.SendUsers(toList, msgData)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
