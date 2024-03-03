@@ -23,41 +23,50 @@ go mod tidy
 
 将`vita_task.sql`导入到Mysql中。
 
-## 部署
+## 运行
 
-### 调试
+API服务
 
 ```shell
-go run main.go
+go run ./cmd/vita-api/main.go
 ```
 
-### 编译
+Websocket Gateway服务
 
 ```shell
-go build main.go
+go run ./cmd/vita-gateway/main.go
 ```
 
 ## 配置文件
 
-`app.yml`为程序启动配置文件
+执行以下命令将配置文件拷贝一份:
 
-### app
+```shell
+cp ./config/app.example.yaml ./config/app.yml
+```
+
+### 配置项说明
+
+#### app
 
 设置程序运行必要配置，如端口号、调试模式。
 
-### mysql
+#### mysql
 
 连接MySQL数据库配置
 
-### redis
+#### redis
 
 连接Redis配置，暂时无用
 
-
-### jwt
+#### jwt
 
 JWT配置项目，用于设置加密Key、过期时间、签名信息。
 
-### member
+#### member
 
 设置成员默认密码。
+
+#### gateway
+
+websocket网关配置
