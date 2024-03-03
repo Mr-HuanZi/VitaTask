@@ -161,7 +161,7 @@ func (receiver *ProjectMemberService) Remove(projectId uint, userIds []uint64) e
 
 	// 是否为负责人
 	if !receiver.IsLeader(projectId, currUser.ID) {
-		return exception.NewException(response.MemberNotProjectLeader)
+		return exception.NewException(response.MemberNotProjectLeader, "你不是项目负责人")
 	}
 
 	// 获取成员记录
@@ -205,7 +205,7 @@ func (receiver *ProjectMemberService) RemoveRole(projectId uint, userIds []uint6
 
 	// 是否为负责人
 	if !receiver.IsLeader(projectId, currUser.ID) {
-		return exception.NewException(response.MemberNotProjectLeader)
+		return exception.NewException(response.MemberNotProjectLeader, "你不是项目负责人")
 	}
 
 	// 获取所有角色
