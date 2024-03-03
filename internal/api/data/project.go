@@ -115,7 +115,12 @@ func (r *ProjectRepo) Archived(id uint) bool {
 
 func (r *ProjectRepo) GetUserProjects(uid uint64) ([]repo.Project, error) {
 	var project []repo.Project
-	err := r.tx.Model(&repo.ProjectMember{}).Joins("Project").Where(&repo.ProjectMember{UserId: uid}).Find(&project).Error
+	err := r.tx.Model(&repo.ProjectMember{}).
+		Select("Project.id,Project.name,Project.complete,Project.archive").
+		Joins("Project").
+		Where(&repo.ProjectMember{UserId: uid}).
+		Find(&project).
+		Error
 	return project, err
 }
 
