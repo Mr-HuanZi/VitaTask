@@ -256,6 +256,17 @@ func (receiver *ProjectMemberService) RemoveRole(projectId uint, userIds []uint6
 // Bind 绑定普通成员
 // 不检查项目是否存在
 func (receiver *ProjectMemberService) Bind(projectId uint, userIds []uint64, role int) error {
+	// 获取当前用户
+	currUser, err := auth.CurrUser(receiver.ctx)
+	if err != nil {
+		return err
+	}
+
+	// 是否为负责人
+	if !receiver.IsLeader(projectId, currUser.ID) {
+		return exception.NewException(response.MemberNotProjectLeader, "你不是项目负责人")
+	}
+
 	// 获取所有角色
 	roles := receiver.ShouldProjectRoles(role)
 	if roles == nil {
