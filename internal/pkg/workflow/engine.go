@@ -52,12 +52,18 @@ func Open(tx *gorm.DB, ctx *gin.Context, workflowId uint) (*Engine, error) {
 	// 查询工作流信息
 	workflow, err := workflowRepo.Get(workflowId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrWorkflowNotExist
+		}
 		return nil, err
 	}
 
 	// 查询工作流模板数据
 	typeData, err := workflowTypeRepo.Get(workflow.TypeId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrWorkflowTypeNotExist
+		}
 		return nil, err
 	}
 
@@ -98,6 +104,9 @@ func Create(tx *gorm.DB, ctx *gin.Context, typeId uint) (*Engine, error) {
 	// 查询工作流模板数据
 	typeData, err := workflowTypeRepo.Get(typeId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrWorkflowTypeNotExist
+		}
 		return nil, err
 	}
 

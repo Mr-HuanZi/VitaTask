@@ -81,6 +81,7 @@ const (
 	WorkflowNodeUpdateFail               = 6007 // 工作流节点更新失败
 	WorkflowNodeDeleteFail               = 6008 // 工作流节点删除失败
 	WorkflowNodeNotExist                 = 6009 // 工作流节点不存在
+	WorkflowNotExist                     = 6010 // 工作流不存在
 	WorkflowEngineNotInitialized         = 6100 // 工作流未初始化
 	WorkflowEngineNoFirstNodeSet         = 6101 // 工作流未设置起始节点
 	WorkflowEngineSerialGenerationFailed = 6102 // 工作流编号生成失败
@@ -181,6 +182,7 @@ var codeMap = map[int]string{
 	WorkflowNodeUpdateFail:               "工作流节点更新失败",
 	WorkflowNodeDeleteFail:               "工作流节点删除失败",
 	WorkflowNodeNotExist:                 "工作流节点不存在",
+	WorkflowNotExist:                     "工作流不存在",
 	WorkflowEngineNotInitialized:         "工作流未初始化",
 	WorkflowEngineNoFirstNodeSet:         "工作流未设置起始节点",
 	WorkflowEngineSerialGenerationFailed: "工作流编号生成失败",

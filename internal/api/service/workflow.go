@@ -10,6 +10,7 @@ import (
 	"VitaTaskGo/pkg/exception"
 	"VitaTaskGo/pkg/response"
 	"VitaTaskGo/pkg/time_tool"
+	"errors"
 	"github.com/duke-git/lancet/v2/convertor"
 	"github.com/duke-git/lancet/v2/maputil"
 	"github.com/duke-git/lancet/v2/slice"
@@ -42,6 +43,9 @@ func (r *WorkflowService) Initiate(post dto.WorkflowInitiateDto) error {
 	// 创建引擎对象
 	engine, err = workflow.Create(r.Db, r.ctx, post.TypeId)
 	if err != nil {
+		if errors.Is(err, workflow.ErrWorkflowTypeNotExist) {
+			return exception.NewException(response.WorkflowTypeNotExist)
+		}
 		return exception.ErrorHandle(err, response.SystemFail)
 	}
 
@@ -67,6 +71,12 @@ func (r *WorkflowService) ExamineApprove(post dto.WorkflowExamineApproveDto) err
 	// 创建引擎对象
 	engine, err = workflow.Open(r.Db, r.ctx, post.WorkflowId)
 	if err != nil {
+		if errors.Is(err, workflow.ErrWorkflowTypeNotExist) {
+			return exception.NewException(response.WorkflowTypeNotExist)
+		}
+		if errors.Is(err, workflow.ErrWorkflowNotExist) {
+			return exception.NewException(response.WorkflowNotExist)
+		}
 		return exception.ErrorHandle(err, response.SystemFail)
 	}
 
