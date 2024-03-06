@@ -33,6 +33,10 @@ type SingleUintRequired struct {
 	ID uint `json:"id" binding:"required"`
 }
 
+type SingleStringRequired struct {
+	ID string `json:"id" binding:"required"`
+}
+
 // UniversalSimpleList 通用的简单列表
 // 为了适配前端的下拉选择框
 type UniversalSimpleList[T comparable] struct {

@@ -174,6 +174,19 @@ func (r WorkflowApi) TypeDetail(ctx *gin.Context) {
 	)
 }
 
+func (r WorkflowApi) TypeDetailByOnlyName(ctx *gin.Context) {
+	var post dto.SingleStringRequired
+	if err := ctx.ShouldBindJSON(&post); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(service.NewWorkflowService(db.Db, ctx).TypeDetailByOnlyName(post.ID)),
+	)
+}
+
 func (r WorkflowApi) TypeOptions(ctx *gin.Context) {
 	keyWords := ctx.DefaultQuery("keyWords", "")
 	system := ctx.DefaultQuery("system", "")

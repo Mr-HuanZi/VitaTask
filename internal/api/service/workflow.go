@@ -226,8 +226,15 @@ func (r *WorkflowService) TypeDelete(id uint) error {
 	return exception.ErrorHandle(workflowTypeRepo.Delete(id), response.WorkflowTypeDeleteFail)
 }
 
+// TypeDetail 获取工作流类型详情
 func (r *WorkflowService) TypeDetail(id uint) (*repo.WorkflowType, error) {
 	one, err := data.NewWorkflowTypeRepo(r.Db, r.ctx).Get(id)
+	return one, db.FirstQueryErrorHandle(err, response.WorkflowTypeNotExist)
+}
+
+// TypeDetailByOnlyName 获取工作流类型详情
+func (r *WorkflowService) TypeDetailByOnlyName(onlyName string) (*repo.WorkflowType, error) {
+	one, err := data.NewWorkflowTypeRepo(r.Db, r.ctx).GetByOnlyName(onlyName)
 	return one, db.FirstQueryErrorHandle(err, response.WorkflowTypeNotExist)
 }
 
