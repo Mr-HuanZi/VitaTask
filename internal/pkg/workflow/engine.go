@@ -190,7 +190,7 @@ func (engine *Engine) Initiate() error {
 		// 获取下一个节点配置
 		node, NextNodeErr := engine.NextNode()
 		if NextNodeErr != nil {
-			return err
+			return NextNodeErr
 		}
 		if node == nil {
 			// 没有下一个节点了，直接设定工作流为结束状态
