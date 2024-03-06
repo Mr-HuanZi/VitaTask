@@ -9,6 +9,7 @@ import (
 	"VitaTaskGo/pkg/db"
 	"VitaTaskGo/pkg/exception"
 	"VitaTaskGo/pkg/response"
+	"errors"
 	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -107,7 +108,7 @@ func CurrUser(ctx *gin.Context) (*repo.User, error) {
 
 	user, err := data.NewUserRepo(db.Db, ctx).GetUser(uid)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// 用户不存在
 			return nil, exception.NewException(response.UserNotFound)
 		} else {
