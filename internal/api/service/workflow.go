@@ -12,11 +12,9 @@ import (
 	"VitaTaskGo/pkg/time_tool"
 	"errors"
 	"github.com/duke-git/lancet/v2/convertor"
-	"github.com/duke-git/lancet/v2/maputil"
 	"github.com/duke-git/lancet/v2/slice"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"strconv"
 	"time"
 )
 
@@ -112,17 +110,10 @@ func (r *WorkflowService) PageList(query dto.WorkflowListQueryDto) (*dto.PagedRe
 		}
 	}
 
-	// 工作流状态 转换为 数字字符串
-	if status, ok := workflow.StatusMap[query.Status]; ok {
-		query.Status = strconv.Itoa(status)
-	}
-
 	l, total, err := workflowRepo.PageList(query)
 	if err != nil {
 		return pkg.PagedResult[repo.Workflow](nil, 0, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "列表查询失败: ")
 	}
-
-	statusNames := maputil.Keys(workflow.StatusMap)
 
 	for i, item := range l {
 		// 获取节点数据
@@ -132,8 +123,10 @@ func (r *WorkflowService) PageList(query dto.WorkflowListQueryDto) (*dto.PagedRe
 		}
 
 		// 给状态赋值
-		if len(statusNames)-1 > item.Status {
-			l[i].StatusText = statusNames[item.Status]
+		for ii, s := range workflow.StatusMap {
+			if item.Status == s {
+				l[i].StatusText = ii
+			}
 		}
 	}
 
