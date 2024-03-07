@@ -25,9 +25,9 @@ var StatusMap = map[string]int{
 
 // StatusEnum 状态枚举，兼容Antd Pro
 // 请严格按照常量定义的顺序来
-var StatusEnum = map[string]map[string]string{
-	"voided":    {"text": "已作废", "status": "Error"},
-	"completed": {"text": "已完成", "status": "Success"},
-	"running":   {"text": "进行中", "status": "Processing"},
-	"overrule":  {"text": "驳回", "status": "Warning"},
+var StatusEnum = map[int]map[string]string{
+	StatusVoided:    {"text": "已作废", "status": "Error"},
+	StatusCompleted: {"text": "已完成", "status": "Success"},
+	StatusRunning:   {"text": "进行中", "status": "Processing"},
+	StatusOverrule:  {"text": "驳回", "status": "Warning"},
 }

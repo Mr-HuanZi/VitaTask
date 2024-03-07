@@ -384,6 +384,6 @@ func (r *WorkflowService) Actions() []dto.UniversalSimpleList[string] {
 
 // StatusList 工作流状态列表
 // 适配Antd Pro表格格式
-func (r *WorkflowService) StatusList() map[string]map[string]string {
+func (r *WorkflowService) StatusList() map[int]map[string]string {
 	return workflow.StatusEnum
 }
