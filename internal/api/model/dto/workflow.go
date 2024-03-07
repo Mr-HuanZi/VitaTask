@@ -7,7 +7,7 @@ type WorkflowListQueryDto struct {
 	DeletedQuery
 	TypeId   []uint `json:"type_id,uint"` // 工作流类型ID
 	Serials  string `json:"serials"`
-	Status   string `json:"status"`
+	Status   int    `json:"status"`
 	Promoter uint64 `json:"promoter"`
 	System   bool   `json:"system"`
 }

@@ -81,7 +81,7 @@ func (r *WorkflowRepo) PageList(query dto.WorkflowListQueryDto) ([]repo.Workflow
 
 	// 工作流状态 的最小值是 0
 	// 使用字符串类型是因为整型在初始化的时候为 0 值，和 工作流状态冲突
-	if len(query.Status) > 0 {
+	if query.Status > 0 {
 		tx = tx.Where("status = ?", query.Status)
 	}
 
