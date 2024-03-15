@@ -7,6 +7,7 @@ import (
 	"VitaTaskGo/pkg/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 type WorkflowApi struct {
@@ -105,6 +106,22 @@ func (r WorkflowApi) List(ctx *gin.Context) {
 	ctx.JSON(
 		http.StatusOK,
 		response.Auto(service.NewWorkflowService(db.Db, ctx).PageList(query)),
+	)
+}
+
+func (r WorkflowApi) Detail(ctx *gin.Context) {
+	id := ctx.Query("id")
+
+	// 转换成uint
+	idConv, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusOK, response.Custom("缺少工作流ID参数", response.FormVerificationFailed, nil))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(service.NewWorkflowService(db.Db, ctx).Detail(uint(idConv))),
 	)
 }
 

@@ -130,6 +130,7 @@ func Routers(r *gin.Engine) {
 		g.POST("handled", workflowApi.Handled)
 		g.POST("list", workflowApi.List)
 		g.GET("status/list", workflowApi.StatusList)
+		g.POST("detail", workflowApi.Detail)
 
 		{
 			twoG := g.Group("type")

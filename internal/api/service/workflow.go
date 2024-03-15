@@ -3,6 +3,7 @@ package service
 import (
 	"VitaTaskGo/internal/api/data"
 	"VitaTaskGo/internal/api/model/dto"
+	"VitaTaskGo/internal/api/model/vo"
 	"VitaTaskGo/internal/pkg"
 	"VitaTaskGo/internal/pkg/workflow"
 	"VitaTaskGo/internal/repo"
@@ -131,6 +132,68 @@ func (r *WorkflowService) PageList(query dto.WorkflowListQueryDto) (*dto.PagedRe
 	}
 
 	return pkg.PagedResult(l, total, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "列表查询失败: ")
+}
+
+// Detail 工作流详情
+func (r *WorkflowService) Detail(id uint) (*vo.WorkflowDetailVo, error) {
+	// 实例化VO
+	workflowDetailVo := new(vo.WorkflowDetailVo)
+	// 实例化repo
+	workflowRepo := data.NewWorkflowRepo(r.Db, r.ctx)
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
+	workflowOperatorRepo := data.NewWorkflowOperatorRepo(r.Db, r.ctx)
+	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
+
+	// 查询工作流详情
+	workflowInfo, err := workflowRepo.Get(id)
+	if err != nil {
+		return nil, exception.ErrorHandle(err, response.DbQueryError, "详情查询失败: ")
+	}
+	workflowDetailVo.Workflow = workflowInfo
+
+	// 给状态赋值
+	for i, v := range workflow.StatusMap {
+		if workflowInfo.Status == v {
+			workflowInfo.StatusText = i
+		}
+	}
+
+	// 查询工作流类型详情
+	workflowType, typeErr := workflowTypeRepo.Get(workflowInfo.TypeId)
+	if typeErr != nil {
+		return nil, exception.ErrorHandle(typeErr, response.DbQueryError, "查询类型失败: ")
+	}
+	workflowDetailVo.WorkflowType = workflowType
+
+	// 查询该工作流当前节点
+	if workflowInfo.Node > 0 {
+		node, nodeErr := workflowNodeRepo.GetAppointNode(workflowInfo.TypeId, workflowInfo.Node)
+		if nodeErr != nil {
+			return nil, exception.ErrorHandle(nodeErr, response.DbQueryError, "查询节点失败: ")
+		}
+		// 节点
+		workflowDetailVo.Node = new(vo.WorkflowNodeVo)
+		workflowDetailVo.Node.Node = node.Node
+		workflowDetailVo.Node.Name = node.Name
+		workflowDetailVo.Node.Action = node.Action
+		workflowDetailVo.Node.ActionValue = node.ActionValue
+		workflowDetailVo.Node.Everyone = node.Everyone
+	}
+
+	// 查询当前节点操作人
+	operators, operatorsErr := workflowOperatorRepo.GetWorkflowOperatorByNode(workflowInfo.ID, workflowInfo.Node)
+	if operatorsErr != nil {
+		if errors.Is(operatorsErr, gorm.ErrRecordNotFound) {
+			// 操作人
+			workflowDetailVo.Operators = nil
+		} else {
+			return nil, exception.ErrorHandle(operatorsErr, response.DbQueryError, "查询节点操作人失败: ")
+		}
+	} else {
+		workflowDetailVo.Operators = operators
+	}
+
+	return workflowDetailVo, nil
 }
 
 func (r *WorkflowService) TypeAdd(post dto.WorkflowTypeDto) (*repo.WorkflowType, error) {

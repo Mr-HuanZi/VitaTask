@@ -208,6 +208,10 @@ func (engine *Engine) Initiate() error {
 			return exception.NewException(response.WorkflowEngineSaveMainDataFail)
 		}
 
+		// 保存工作流数据到引擎
+		engine.workflowId = workflow.ID
+		engine.workflow = workflow
+
 		// 保存操作人
 		if workflow.Status == StatusRunning {
 			// 获取下一个节点操作人

@@ -8,27 +8,27 @@ import (
 type Workflow struct {
 	BaseModel
 	DeletedAt
-	TypeId   uint   `json:"type_id,omitempty"`
-	TypeName string `json:"type_name,omitempty"`
-	OrgId    uint   `json:"org_id,omitempty"`
+	TypeId   uint   `json:"type_id"`
+	TypeName string `json:"type_name"`
+	OrgId    uint   `json:"org_id"`
 	// 工作流编号
-	Serials string `json:"serials,omitempty"`
-	Title   string `json:"title,omitempty"`
+	Serials string `json:"serials"`
+	Title   string `json:"title"`
 	// 发起人ID
-	Promoter uint64 `json:"promoter,omitempty"`
+	Promoter uint64 `json:"promoter"`
 	// 发起人昵称
-	Nickname string `json:"nickname,omitempty"`
+	Nickname string `json:"nickname"`
 	// 工作流状态
-	Status int `json:"status,omitempty"`
+	Status int `json:"status"`
 	// 当前节点
-	Node int `json:"node,omitempty"`
+	Node int `json:"node"`
 	// 提交次数
-	SubmitNum int `json:"submit_num,omitempty"`
+	SubmitNum int `json:"submit_num"`
 	// 关联工作流节点表，指定用本表的Node字段关联WorkflowNode表的Node字段
 	NodeInfo *WorkflowNode      `json:"node_info" gorm:"-:migration;foreignKey:Node;references:Node"`
 	Operator []WorkflowOperator `json:"operator" gorm:"-:migration;WorkflowId:Node;references:ID"`
 	// 状态名 英文
-	StatusText string `json:"status_text,omitempty" gorm:"-"`
+	StatusText string `json:"status_text" gorm:"-"`
 }
 
 func (receiver *Workflow) TableName() string {
