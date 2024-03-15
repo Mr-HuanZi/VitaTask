@@ -68,7 +68,7 @@ func (r *WorkflowService) ExamineApprove(post dto.WorkflowExamineApproveDto) err
 	)
 
 	// 创建引擎对象
-	engine, err = workflow.Open(r.Db, r.ctx, post.WorkflowId)
+	engine, err = workflow.Open(r.Db, r.ctx, post.Id)
 	if err != nil {
 		if errors.Is(err, workflow.ErrWorkflowTypeNotExist) {
 			return exception.NewException(response.WorkflowTypeNotExist)
