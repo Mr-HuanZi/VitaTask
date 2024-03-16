@@ -26,7 +26,7 @@ func (r WorkflowApi) Initiate(ctx *gin.Context) {
 
 	ctx.JSON(
 		http.StatusOK,
-		response.Auto(nil, service.NewWorkflowService(db.Db, ctx).Initiate(post)),
+		response.Auto(service.NewWorkflowService(db.Db, ctx).Initiate(post)),
 	)
 }
 
@@ -39,7 +39,7 @@ func (r WorkflowApi) ExamineApprove(ctx *gin.Context) {
 
 	ctx.JSON(
 		http.StatusOK,
-		response.Auto(nil, service.NewWorkflowService(db.Db, ctx).ExamineApprove(post)),
+		response.Auto(service.NewWorkflowService(db.Db, ctx).ExamineApprove(post)),
 	)
 }
 

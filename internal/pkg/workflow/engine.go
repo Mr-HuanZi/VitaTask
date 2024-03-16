@@ -607,3 +607,7 @@ func (engine *Engine) MultipleOperator(userId uint64) bool {
 
 	return false
 }
+
+func (engine *Engine) GetWorkflowInfo() *repo.Workflow {
+	return engine.workflow
+}

@@ -33,7 +33,7 @@ func NewWorkflowService(tx *gorm.DB, ctx *gin.Context) *WorkflowService {
 	}
 }
 
-func (r *WorkflowService) Initiate(post dto.WorkflowInitiateDto) error {
+func (r *WorkflowService) Initiate(post dto.WorkflowInitiateDto) (*repo.Workflow, error) {
 	var (
 		engine *workflow.Engine
 		err    error
@@ -43,25 +43,25 @@ func (r *WorkflowService) Initiate(post dto.WorkflowInitiateDto) error {
 	engine, err = workflow.Create(r.Db, r.ctx, post.TypeId)
 	if err != nil {
 		if errors.Is(err, workflow.ErrWorkflowTypeNotExist) {
-			return exception.NewException(response.WorkflowTypeNotExist)
+			return nil, exception.NewException(response.WorkflowTypeNotExist)
 		}
-		return exception.ErrorHandle(err, response.SystemFail)
+		return nil, exception.ErrorHandle(err, response.SystemFail)
 	}
 
 	// 将struct转换成map
 	toMap, err := convertor.StructToMap(post)
 	if err != nil {
-		return exception.ErrorHandle(err, response.SystemFail)
+		return nil, exception.ErrorHandle(err, response.SystemFail)
 	}
 
 	// 设置表单数据
 	engine.SetFormData(toMap)
 	// 发起工作流
 	err = engine.Initiate()
-	return exception.ErrorHandle(err, response.SystemFail)
+	return engine.GetWorkflowInfo(), exception.ErrorHandle(err, response.SystemFail)
 }
 
-func (r *WorkflowService) ExamineApprove(post dto.WorkflowExamineApproveDto) error {
+func (r *WorkflowService) ExamineApprove(post dto.WorkflowExamineApproveDto) (*repo.Workflow, error) {
 	var (
 		engine *workflow.Engine
 		err    error
@@ -71,25 +71,25 @@ func (r *WorkflowService) ExamineApprove(post dto.WorkflowExamineApproveDto) err
 	engine, err = workflow.Open(r.Db, r.ctx, post.Id)
 	if err != nil {
 		if errors.Is(err, workflow.ErrWorkflowTypeNotExist) {
-			return exception.NewException(response.WorkflowTypeNotExist)
+			return nil, exception.NewException(response.WorkflowTypeNotExist)
 		}
 		if errors.Is(err, workflow.ErrWorkflowNotExist) {
-			return exception.NewException(response.WorkflowNotExist)
+			return nil, exception.NewException(response.WorkflowNotExist)
 		}
-		return exception.ErrorHandle(err, response.SystemFail)
+		return nil, exception.ErrorHandle(err, response.SystemFail)
 	}
 
 	// 将struct转换成map
 	toMap, err := convertor.StructToMap(post)
 	if err != nil {
-		return exception.ErrorHandle(err, response.SystemFail)
+		return nil, exception.ErrorHandle(err, response.SystemFail)
 	}
 
 	// 设置表单数据
 	engine.SetFormData(toMap)
 	// 执行审批
 	err = engine.ExamineApprove()
-	return exception.ErrorHandle(err, response.SystemFail)
+	return engine.GetWorkflowInfo(), exception.ErrorHandle(err, response.SystemFail)
 }
 
 // PageList 分页列表
