@@ -443,3 +443,65 @@ func (r *WorkflowService) Actions() []dto.UniversalSimpleList[string] {
 func (r *WorkflowService) StatusList() map[int]map[string]string {
 	return workflow.StatusEnum
 }
+
+func (r *WorkflowService) LogPageLists(query dto.WorkflowLogQueryDto) (*dto.PagedResult[vo.WorkflowLogVo], error) {
+	var (
+		queryBo dto.WorkflowLogQueryBo
+	)
+
+	workflowLogRepo := data.NewWorkflowLogRepo(r.Db, r.ctx)
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
+	workflowRepo := data.NewWorkflowRepo(r.Db, r.ctx)
+
+	// 搜索处理
+	queryBo.UintId = query.UintId
+	queryBo.PagingQuery = query.PagingQuery
+	queryBo.WorkflowId = query.WorkflowId
+	queryBo.Node = query.Node
+	queryBo.Action = query.Action
+
+	// 操作人
+	if query.Operator > 0 {
+		queryBo.Operator = []uint64{query.Operator}
+	}
+
+	if len(query.CreateTime) >= 2 {
+		createTimeRange, err := time_tool.ParseStartEndTimeToUnix(query.CreateTime, time.DateOnly, "milli")
+		if err != nil {
+			return pkg.PagedResult[vo.WorkflowLogVo](nil, 0, int64(query.Page)), exception.ErrorHandle(err, response.TimeParseFail)
+		}
+
+		queryBo.CreateTime = createTimeRange
+	}
+
+	l, total, err := workflowLogRepo.PageList(queryBo)
+
+	workflowLogVo := make([]vo.WorkflowLogVo, len(l))
+	for i, item := range l {
+		itemVo := vo.WorkflowLogVo{}
+		err := convertor.CopyProperties(&itemVo, item)
+		if err != nil {
+			return pkg.PagedResult[vo.WorkflowLogVo](nil, 0, int64(query.Page)), exception.ErrorHandle(err, response.SystemFail, "Vo数据转换失败")
+		}
+
+		// 查询工作流详情
+		workflowInfo, err := workflowRepo.Get(item.WorkflowId)
+		if err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return pkg.PagedResult[vo.WorkflowLogVo](nil, 0, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "获取工作流Info失败")
+			}
+		}
+
+		if workflowInfo != nil {
+			// 获取节点数据
+			node, err := workflowNodeRepo.GetAppointNode(workflowInfo.TypeId, item.Node)
+			if err == nil {
+				itemVo.NodeInfo = node
+			}
+		}
+
+		workflowLogVo[i] = itemVo
+	}
+
+	return pkg.PagedResult(workflowLogVo, total, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "列表查询失败: ")
+}

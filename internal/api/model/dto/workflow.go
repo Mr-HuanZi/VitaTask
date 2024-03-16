@@ -79,13 +79,22 @@ type WorkflowExamineApproveDto struct {
 	Data    interface{} `json:"data"`    // 数据
 }
 
+type WorkflowLogQueryDto struct {
+	UintId
+	PagingQuery
+	QueryParams
+	WorkflowId uint   `json:"workflow_id,omitempty"` // 工作流ID
+	Node       int    `json:"node,omitempty"`
+	Action     string `json:"action"`
+	Operator   uint64 `json:"operator,omitempty"`
+}
+
 type WorkflowLogQueryBo struct {
 	UintId
 	PagingQuery
-	DeletedQuery
-	WorkflowId uint    `json:"workflow_id,omitempty"` // 工作流ID
-	Node       int     `json:"node,omitempty"`
-	Action     string  `json:"action"`
-	Operator   uint64  `json:"operator,omitempty"`
-	CreateTime []int64 `json:"create_time,omitempty"`
+	WorkflowId uint     `json:"workflow_id,omitempty"` // 工作流ID
+	Node       int      `json:"node,omitempty"`
+	Action     string   `json:"action"`
+	Operator   []uint64 `json:"operator,omitempty"`
+	CreateTime []int64  `json:"create_time,omitempty"`
 }

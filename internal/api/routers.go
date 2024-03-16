@@ -151,5 +151,10 @@ func Routers(r *gin.Engine) {
 			twoG.POST("delete", workflowApi.NodeDelete)
 			twoG.POST("actions", workflowApi.Actions)
 		}
+
+		{
+			twoG := g.Group("log")
+			twoG.POST("lists", workflowApi.LogPageLists)
+		}
 	}
 }

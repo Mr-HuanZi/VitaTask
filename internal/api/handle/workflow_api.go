@@ -287,3 +287,16 @@ func (r WorkflowApi) StatusList(ctx *gin.Context) {
 		response.SuccessData(service.NewWorkflowService(db.Db, ctx).StatusList()),
 	)
 }
+
+func (r WorkflowApi) LogPageLists(ctx *gin.Context) {
+	var query dto.WorkflowLogQueryDto
+	if err := ctx.ShouldBindJSON(&query); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(service.NewWorkflowService(db.Db, ctx).LogPageLists(query)),
+	)
+}

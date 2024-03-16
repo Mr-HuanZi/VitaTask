@@ -68,8 +68,8 @@ func (r *WorkflowLogRepo) PageList(query dto.WorkflowLogQueryBo) ([]repo.Workflo
 		tx = tx.Where("node = ?", query.Node)
 	}
 
-	if query.Operator > 0 {
-		tx = tx.Where("operator = ?", query.Operator)
+	if len(query.Operator) > 0 {
+		tx = tx.Where("operator IN ?", query.Operator)
 	}
 
 	if len(query.CreateTime) >= 2 {
