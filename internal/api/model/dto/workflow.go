@@ -78,3 +78,14 @@ type WorkflowExamineApproveDto struct {
 	Node    int         `json:"node"`    // 退回到哪个节点
 	Data    interface{} `json:"data"`    // 数据
 }
+
+type WorkflowLogQueryBo struct {
+	UintId
+	PagingQuery
+	DeletedQuery
+	WorkflowId uint    `json:"workflow_id,omitempty"` // 工作流ID
+	Node       int     `json:"node,omitempty"`
+	Action     string  `json:"action"`
+	Operator   uint64  `json:"operator,omitempty"`
+	CreateTime []int64 `json:"create_time,omitempty"`
+}

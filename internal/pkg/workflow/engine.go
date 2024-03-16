@@ -8,6 +8,7 @@ import (
 	"VitaTaskGo/pkg/exception"
 	"VitaTaskGo/pkg/response"
 	"errors"
+	"fmt"
 	"github.com/duke-git/lancet/v2/random"
 	"github.com/duke-git/lancet/v2/slice"
 	"github.com/duke-git/lancet/v2/strutil"
@@ -41,6 +42,7 @@ type EngineRepo struct {
 	workflowRepo         repo.WorkflowRepo
 	workflowOperatorRepo repo.WorkflowOperatorRepo
 	workflowNodeRepo     repo.WorkflowNodeRepo
+	workflowLogRepo      repo.WorkflowLogRepo
 }
 
 // Open 打开一个工作流
@@ -49,6 +51,7 @@ func Open(tx *gorm.DB, ctx *gin.Context, workflowId uint) (*Engine, error) {
 	workflowRepo := data.NewWorkflowRepo(tx, ctx)
 	workflowOperatorRepo := data.NewWorkflowOperatorRepo(tx, ctx)
 	workflowNodeRepo := data.NewWorkflowNodeRepo(tx, ctx)
+	workflowLogRepo := data.NewWorkflowLogRepo(tx, ctx)
 	// 查询工作流信息
 	workflow, err := workflowRepo.Get(workflowId)
 	if err != nil {
@@ -80,15 +83,21 @@ func Open(tx *gorm.DB, ctx *gin.Context, workflowId uint) (*Engine, error) {
 
 	// 设置属性
 	engine := &Engine{
-		Orm:         tx,
-		ctx:         ctx,
-		typeId:      typeData.ID,
-		typeData:    typeData,
-		workflowId:  workflow.ID,
-		workflow:    workflow,
-		operator:    operator,
-		nodeInfo:    node,
-		Repo:        EngineRepo{workflowTypeRepo: workflowTypeRepo, workflowRepo: workflowRepo, workflowOperatorRepo: workflowOperatorRepo, workflowNodeRepo: workflowNodeRepo},
+		Orm:        tx,
+		ctx:        ctx,
+		typeId:     typeData.ID,
+		typeData:   typeData,
+		workflowId: workflow.ID,
+		workflow:   workflow,
+		operator:   operator,
+		nodeInfo:   node,
+		Repo: EngineRepo{
+			workflowTypeRepo:     workflowTypeRepo,
+			workflowRepo:         workflowRepo,
+			workflowOperatorRepo: workflowOperatorRepo,
+			workflowNodeRepo:     workflowNodeRepo,
+			workflowLogRepo:      workflowLogRepo,
+		},
 		initialized: true,
 		formData:    make(map[string]interface{}),
 	}
@@ -101,6 +110,7 @@ func Create(tx *gorm.DB, ctx *gin.Context, typeId uint) (*Engine, error) {
 	workflowRepo := data.NewWorkflowRepo(tx, ctx)
 	workflowOperatorRepo := data.NewWorkflowOperatorRepo(tx, ctx)
 	workflowNodeRepo := data.NewWorkflowNodeRepo(tx, ctx)
+	workflowLogRepo := data.NewWorkflowLogRepo(tx, ctx)
 	// 查询工作流模板数据
 	typeData, err := workflowTypeRepo.Get(typeId)
 	if err != nil {
@@ -112,13 +122,19 @@ func Create(tx *gorm.DB, ctx *gin.Context, typeId uint) (*Engine, error) {
 
 	// 设置属性
 	engine := &Engine{
-		Orm:         tx,
-		ctx:         ctx,
-		typeId:      typeId,
-		typeData:    typeData,
-		workflowId:  0,
-		workflow:    nil,
-		Repo:        EngineRepo{workflowTypeRepo: workflowTypeRepo, workflowRepo: workflowRepo, workflowOperatorRepo: workflowOperatorRepo, workflowNodeRepo: workflowNodeRepo},
+		Orm:        tx,
+		ctx:        ctx,
+		typeId:     typeId,
+		typeData:   typeData,
+		workflowId: 0,
+		workflow:   nil,
+		Repo: EngineRepo{
+			workflowTypeRepo:     workflowTypeRepo,
+			workflowRepo:         workflowRepo,
+			workflowOperatorRepo: workflowOperatorRepo,
+			workflowNodeRepo:     workflowNodeRepo,
+			workflowLogRepo:      workflowLogRepo,
+		},
 		initialized: true,
 		formData:    make(map[string]interface{}),
 	}
@@ -153,6 +169,7 @@ func (engine *Engine) Initiate() error {
 			engine.Repo.workflowNodeRepo.SetDbInstance(engine.Orm)
 			engine.Repo.workflowOperatorRepo.SetDbInstance(engine.Orm)
 			engine.Repo.workflowTypeRepo.SetDbInstance(engine.Orm)
+			engine.Repo.workflowLogRepo.SetDbInstance(engine.Orm)
 		}()
 
 		// 给所有Repo设置新的Orm实例
@@ -160,6 +177,7 @@ func (engine *Engine) Initiate() error {
 		engine.Repo.workflowNodeRepo.SetDbInstance(tx)
 		engine.Repo.workflowOperatorRepo.SetDbInstance(tx)
 		engine.Repo.workflowTypeRepo.SetDbInstance(tx)
+		engine.Repo.workflowLogRepo.SetDbInstance(tx)
 
 		// 生成序列号
 		serials, err := engine.GenerateSerials()
@@ -233,6 +251,17 @@ func (engine *Engine) Initiate() error {
 		// 尝试写入工作流附加数据
 
 		// 记录日志
+		logErr := engine.Repo.workflowLogRepo.Create(&repo.WorkflowLog{
+			WorkflowId: workflow.ID,
+			Node:       workflow.Node,
+			Operator:   user.ID,
+			Nickname:   user.UserNickname,
+			Action:     Initiate,
+			Explain:    fmt.Sprintf("用户[%s]发起工作流", user.UserNickname),
+		})
+		if logErr != nil {
+			return exception.NewException(response.WorkflowEngineSaveLogFail)
+		}
 		return nil
 	})
 	return transactionErr
@@ -258,8 +287,13 @@ func (engine *Engine) ExamineApprove() error {
 	// todo 调用Hook
 
 	var nextNode *repo.WorkflowNode
+
+	// 日志说明
+	logExplain := "通过"
+	logAction := Pass
+
 	action, ok := engine.formData["action"]
-	if !ok || action == "next" || action == "" {
+	if !ok || action == "" || action == Pass {
 		/* 工作流正常流转 */
 		// 如果当前工作流是 已驳回 状态
 		if engine.workflow.Status == StatusOverrule {
@@ -285,10 +319,12 @@ func (engine *Engine) ExamineApprove() error {
 				nextNode = node
 			}
 		}
-	} else if action == "overrule" {
+	} else if action == Overrule {
 		/* 驳回工作流 */
+		logAction = Overrule
+		logExplain = "驳回"
 		// 是否跳转到指定节点
-		jumpNode, ok := engine.formData["jump_node"]
+		jumpNode, ok := engine.formData["node"]
 		if ok {
 			node, err := engine.Repo.workflowNodeRepo.GetAppointNode(engine.typeId, jumpNode.(int))
 			if err != nil {
@@ -313,8 +349,10 @@ func (engine *Engine) ExamineApprove() error {
 		}
 		// 设置工作流状态
 		engine.workflow.Status = StatusOverrule
-	} else if action == "cancel" {
+	} else if action == Voided {
 		/* 作废工作流 */
+		logAction = Voided
+		logExplain = "作废"
 		// 此操作不更改工作流节点
 		// 设置工作流状态
 		engine.workflow.Status = StatusVoided
@@ -332,6 +370,7 @@ func (engine *Engine) ExamineApprove() error {
 			engine.Repo.workflowNodeRepo.SetDbInstance(engine.Orm)
 			engine.Repo.workflowOperatorRepo.SetDbInstance(engine.Orm)
 			engine.Repo.workflowTypeRepo.SetDbInstance(engine.Orm)
+			engine.Repo.workflowLogRepo.SetDbInstance(engine.Orm)
 		}()
 
 		// 给所有Repo设置新的Orm实例
@@ -339,6 +378,7 @@ func (engine *Engine) ExamineApprove() error {
 		engine.Repo.workflowNodeRepo.SetDbInstance(tx)
 		engine.Repo.workflowOperatorRepo.SetDbInstance(tx)
 		engine.Repo.workflowTypeRepo.SetDbInstance(tx)
+		engine.Repo.workflowLogRepo.SetDbInstance(tx)
 
 		// todo 执行钩子
 
@@ -398,6 +438,25 @@ func (engine *Engine) ExamineApprove() error {
 		// 尝试写入工作流附加数据
 
 		// 记录日志
+		workflowLog := &repo.WorkflowLog{
+			WorkflowId: engine.workflow.ID,
+			Node:       engine.workflow.Node,
+			Operator:   user.ID,
+			Nickname:   user.UserNickname,
+			Action:     logAction,
+			Explain:    fmt.Sprintf("用户[%s]操作了工作流，动作是: %s", user.UserNickname, logExplain),
+		}
+
+		// 日志额外说明
+		if explain, ok := engine.formData["explain"]; ok {
+			if str, o := explain.(string); o && str != "" {
+				workflowLog.Explain = str
+			}
+		}
+		logErr := engine.Repo.workflowLogRepo.Create(workflowLog)
+		if logErr != nil {
+			return exception.NewException(response.WorkflowEngineSaveLogFail)
+		}
 		return nil
 	})
 	return transactionErr

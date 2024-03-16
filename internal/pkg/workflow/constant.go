@@ -14,6 +14,17 @@ const (
 	StatusOverrule
 )
 
+const (
+	// Initiate 发起
+	Initiate = "initiate"
+	// Pass 通过
+	Pass = "pass"
+	// Overrule 驳回
+	Overrule = "overrule"
+	// Voided 作废
+	Voided = "voided"
+)
+
 // StatusMap 状态Map
 // 请严格按照常量定义的顺序来
 var StatusMap = map[string]int{
