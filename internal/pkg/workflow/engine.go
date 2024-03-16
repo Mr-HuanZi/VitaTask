@@ -259,7 +259,7 @@ func (engine *Engine) ExamineApprove() error {
 
 	var nextNode *repo.WorkflowNode
 	action, ok := engine.formData["action"]
-	if !ok || action == "next" {
+	if !ok || action == "next" || action == "" {
 		/* 工作流正常流转 */
 		// 如果当前工作流是 已驳回 状态
 		if engine.workflow.Status == StatusOverrule {
