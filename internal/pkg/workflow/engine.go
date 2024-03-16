@@ -77,7 +77,10 @@ func Open(tx *gorm.DB, ctx *gin.Context, workflowId uint) (*Engine, error) {
 	}
 
 	// 获取当前节点信息
-	node, err := workflowNodeRepo.GetAppointNode(workflowId, workflow.Node)
+	node, nodeErr := workflowNodeRepo.GetAppointNode(workflow.TypeId, workflow.Node)
+	if nodeErr != nil {
+		return nil, db.FirstQueryErrorHandle(err, response.WorkflowNodeNotExist)
+	}
 
 	// todo 获取工作流数据
 
@@ -120,6 +123,12 @@ func Create(tx *gorm.DB, ctx *gin.Context, typeId uint) (*Engine, error) {
 		return nil, err
 	}
 
+	// 取第一个节点
+	firstNode, firstNodeErr := workflowNodeRepo.FirstNode(typeId)
+	if firstNodeErr != nil {
+		return nil, db.FirstQueryErrorHandle(err, response.WorkflowEngineNoFirstNodeSet)
+	}
+
 	// 设置属性
 	engine := &Engine{
 		Orm:        tx,
@@ -137,6 +146,7 @@ func Create(tx *gorm.DB, ctx *gin.Context, typeId uint) (*Engine, error) {
 		},
 		initialized: true,
 		formData:    make(map[string]interface{}),
+		nodeInfo:    firstNode,
 	}
 
 	return engine, nil
@@ -253,7 +263,7 @@ func (engine *Engine) Initiate() error {
 		// 记录日志
 		logErr := engine.Repo.workflowLogRepo.Create(&repo.WorkflowLog{
 			WorkflowId: workflow.ID,
-			Node:       workflow.Node,
+			Node:       engine.nodeInfo.Node,
 			Operator:   user.ID,
 			Nickname:   user.UserNickname,
 			Action:     Initiate,
@@ -286,6 +296,7 @@ func (engine *Engine) ExamineApprove() error {
 
 	// todo 调用Hook
 
+	// 下一个节点
 	var nextNode *repo.WorkflowNode
 
 	// 日志说明
@@ -440,7 +451,7 @@ func (engine *Engine) ExamineApprove() error {
 		// 记录日志
 		workflowLog := &repo.WorkflowLog{
 			WorkflowId: engine.workflow.ID,
-			Node:       engine.workflow.Node,
+			Node:       engine.nodeInfo.Node,
 			Operator:   user.ID,
 			Nickname:   user.UserNickname,
 			Action:     logAction,
