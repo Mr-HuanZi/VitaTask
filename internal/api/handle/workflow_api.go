@@ -300,3 +300,17 @@ func (r WorkflowApi) LogPageLists(ctx *gin.Context) {
 		response.Auto(service.NewWorkflowService(db.Db, ctx).LogPageLists(query)),
 	)
 }
+
+// Footprint 工作流足迹
+func (r WorkflowApi) Footprint(ctx *gin.Context) {
+	var post dto.SingleUintRequired
+	if err := ctx.ShouldBindJSON(&post); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(service.NewWorkflowService(db.Db, ctx).Footprint(post.ID)),
+	)
+}

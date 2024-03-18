@@ -505,3 +505,71 @@ func (r *WorkflowService) LogPageLists(query dto.WorkflowLogQueryDto) (*dto.Page
 
 	return pkg.PagedResult(workflowLogVo, total, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "列表查询失败: ")
 }
+
+func (r *WorkflowService) Footprint(id uint) ([]vo.WorkflowFootprintVo, error) {
+	workflowLogRepo := data.NewWorkflowLogRepo(r.Db, r.ctx)
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
+	workflowRepo := data.NewWorkflowRepo(r.Db, r.ctx)
+
+	// 查询工作流详情
+	workflowInfo, err := workflowRepo.Get(id)
+	if err != nil {
+		return nil, exception.ErrorHandle(err, response.WorkflowNotExist)
+	}
+
+	// 获取该工作流类型的所有节点配置
+	workflowNodes, nodeErr := workflowNodeRepo.GetTypeAll(workflowInfo.TypeId)
+	if nodeErr != nil {
+		return nil, exception.ErrorHandle(nodeErr, response.DbQueryError, "查询节点失败: ")
+	}
+
+	// 获取该工作流的所有操作记录
+	workflowLogs, logErr := workflowLogRepo.GetWorkflowAll(workflowInfo.ID)
+	if logErr != nil {
+		return nil, exception.ErrorHandle(nodeErr, response.DbQueryError, "查询日志失败: ")
+	}
+
+	// 遍历日志，找出第一个 action 是 initiate 的
+	// 因为 workflowLogs 在查询时已经按 create_time 倒序了，这里直接遍历即可
+	filteredLog := make([]repo.WorkflowLog, 99)
+	for _, log := range workflowLogs {
+		filteredLog = append(filteredLog, log)
+		if log.Action == workflow.Initiate {
+			break
+		}
+	}
+
+	// 创建Vo数据
+	footprintVo := make([]vo.WorkflowFootprintVo, len(workflowNodes))
+	// 遍历节点数据
+	for i, node := range workflowNodes {
+		item := vo.WorkflowFootprintVo{
+			Node: node.Node,
+			Name: node.Name,
+			// 是否是当前节点
+			Curr: workflowInfo.Node == node.Node,
+		}
+		// 遍历操作记录
+		for _, log := range filteredLog {
+			if log.Node == node.Node {
+				// 操作说明(多条只保留最后一个)
+				item.Explain = log.Explain
+				item.Time = log.CreateTime
+				// 记录操作人
+				if item.Operators == nil {
+					// 如果没有初始化，就初始化一下
+					item.Operators = make([]vo.WorkflowFootprintOperatorVo, 0)
+				}
+
+				item.Operators = append(item.Operators, vo.WorkflowFootprintOperatorVo{
+					Uid:      log.Operator,
+					Nickname: log.Nickname,
+				})
+			}
+		}
+
+		footprintVo[i] = item
+	}
+
+	return footprintVo, nil
+}

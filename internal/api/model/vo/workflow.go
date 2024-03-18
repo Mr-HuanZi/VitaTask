@@ -28,3 +28,17 @@ type WorkflowLogVo struct {
 	Action     string             `json:"action"`
 	NodeInfo   *repo.WorkflowNode `json:"node_info"`
 }
+
+type WorkflowFootprintOperatorVo struct {
+	Uid      uint64 `json:"uid"`
+	Nickname string `json:"nickname"`
+}
+
+type WorkflowFootprintVo struct {
+	Node      int                           `json:"node"`
+	Name      string                        `json:"name"`
+	Curr      bool                          `json:"curr"` // 是否当前节点
+	Operators []WorkflowFootprintOperatorVo `json:"operators"`
+	Explain   string                        `json:"explain"`
+	Time      int64                         `json:"time"`
+}

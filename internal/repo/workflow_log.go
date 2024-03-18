@@ -27,5 +27,7 @@ type WorkflowLogRepo interface {
 	UpdateField(id uint, field string, value interface{}) error
 	UpdateFields(id uint, values interface{}) error
 	PageList(query dto.WorkflowLogQueryBo) ([]WorkflowLog, int64, error)
+	// GetWorkflowAll 获取某工作流所有日志
+	GetWorkflowAll(workflowId uint) ([]WorkflowLog, error)
 	SetDbInstance(tx *gorm.DB)
 }

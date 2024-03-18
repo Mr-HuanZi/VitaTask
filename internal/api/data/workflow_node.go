@@ -122,6 +122,17 @@ func (r *WorkflowNodeRepo) FirstNode(typeId uint) (*repo.WorkflowNode, error) {
 	return d, err
 }
 
+func (r *WorkflowNodeRepo) GetTypeAll(typeId uint) ([]repo.WorkflowNode, error) {
+	var list []repo.WorkflowNode
+
+	err := r.tx.Model(&repo.WorkflowNode{}).
+		Where(&repo.WorkflowNode{TypeId: typeId}).
+		Order("node").
+		Find(&list).Error
+
+	return list, err
+}
+
 func (r *WorkflowNodeRepo) SetDbInstance(tx *gorm.DB) {
 	r.tx = tx
 }

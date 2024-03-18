@@ -155,6 +155,7 @@ func Routers(r *gin.Engine) {
 		{
 			twoG := g.Group("log")
 			twoG.POST("lists", workflowApi.LogPageLists)
+			twoG.POST("footprint", workflowApi.Footprint)
 		}
 	}
 }

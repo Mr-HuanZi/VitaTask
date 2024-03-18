@@ -31,6 +31,8 @@ type WorkflowNodeRepo interface {
 	// GetAppointNode 获取指定节点
 	GetAppointNode(typeId uint, node int) (*WorkflowNode, error)
 	GetNextNode(typeId uint, currNode int) (*WorkflowNode, error)
-	SetDbInstance(tx *gorm.DB)
 	FirstNode(typeId uint) (*WorkflowNode, error)
+	// GetTypeAll 获取某类型的所有节点
+	GetTypeAll(typeId uint) ([]WorkflowNode, error)
+	SetDbInstance(tx *gorm.DB)
 }

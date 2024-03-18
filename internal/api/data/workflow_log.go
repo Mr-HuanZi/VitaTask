@@ -98,6 +98,16 @@ func (r *WorkflowLogRepo) PageList(query dto.WorkflowLogQueryBo) ([]repo.Workflo
 	return list, total, exception.ErrorHandle(err, response.DbQueryError)
 }
 
+func (r *WorkflowLogRepo) GetWorkflowAll(workflowId uint) ([]repo.WorkflowLog, error) {
+	var list []repo.WorkflowLog
+
+	err := r.tx.Model(repo.WorkflowLog{}).
+		Where("workflow_id = ?", workflowId).
+		Order("create_time DESC").
+		Find(&list).Error
+	return list, err
+}
+
 func (r *WorkflowLogRepo) SetDbInstance(tx *gorm.DB) {
 	r.tx = tx
 }
