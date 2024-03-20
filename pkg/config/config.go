@@ -9,15 +9,6 @@ import (
 
 var Instances *Config
 
-type Config struct {
-	Jwt     JwtConfig     `yaml:"auth"`
-	Mysql   MySQLConfig   `yaml:"mysql"`
-	Redis   RedisConfig   `yaml:"redis"`
-	App     AppConfig     `yaml:"app"`
-	Member  MemberConfig  `yaml:"member"`
-	Gateway GatewayConfig `yaml:"gateway"`
-}
-
 type JwtConfig struct {
 	Key           string `yaml:"key"`
 	ExpireSeconds int    `yaml:"expire"`
@@ -26,6 +17,15 @@ type JwtConfig struct {
 
 type MySQLConfig struct {
 	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	DbName   string `yaml:"dbname"`
+	Prefix   string `yaml:"prefix"`
+}
+
+type MongoConfig struct {
+	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
@@ -54,6 +54,16 @@ type GatewayConfig struct {
 	Port int    `yaml:"port"`
 }
 
+type Config struct {
+	Jwt     JwtConfig     `yaml:"auth"`
+	Mysql   MySQLConfig   `yaml:"mysql"`
+	Mongo   MongoConfig   `yaml:"mongo"`
+	Redis   RedisConfig   `yaml:"redis"`
+	App     AppConfig     `yaml:"app"`
+	Member  MemberConfig  `yaml:"member"`
+	Gateway GatewayConfig `yaml:"gateway"`
+}
+
 func NewConfig() *Config {
 	return &Config{
 		Jwt: JwtConfig{
@@ -68,6 +78,14 @@ func NewConfig() *Config {
 			Port:     3306,
 			DbName:   "",
 			Prefix:   "",
+		},
+		Mongo: MongoConfig{
+			Username: "root",
+			Password: "root",
+			Host:     "localhost",
+			Port:     27017,
+			DbName:   "vita_task",
+			Prefix:   "", // 暂不支持表前缀
 		},
 		Redis: RedisConfig{
 			Host: "localhost",

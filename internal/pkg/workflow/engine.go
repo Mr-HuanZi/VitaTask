@@ -82,8 +82,6 @@ func Open(tx *gorm.DB, ctx *gin.Context, workflowId uint) (*Engine, error) {
 		return nil, db.FirstQueryErrorHandle(err, response.WorkflowNodeNotExist)
 	}
 
-	// todo 获取工作流数据
-
 	// 设置属性
 	engine := &Engine{
 		Orm:        tx,
