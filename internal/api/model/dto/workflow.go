@@ -67,8 +67,9 @@ type WorkflowNodeQueryBo struct {
 }
 
 type WorkflowInitiateDto struct {
-	TypeId uint   `json:"type_id,omitempty"` // 工作流类型ID
-	Title  string `json:"title"`
+	TypeId uint        `json:"type_id,omitempty"` // 工作流类型ID
+	Title  string      `json:"title"`
+	Data   interface{} `json:"data"` // 数据
 }
 
 type WorkflowExamineApproveDto struct {

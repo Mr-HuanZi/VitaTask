@@ -15,8 +15,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-module/carbon/v2"
 	"github.com/valyala/fastjson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 	"strconv"
+	"strings"
 )
 
 type Engine struct {
@@ -124,7 +127,7 @@ func Create(tx *gorm.DB, ctx *gin.Context, typeId uint) (*Engine, error) {
 	// 取第一个节点
 	firstNode, firstNodeErr := workflowNodeRepo.FirstNode(typeId)
 	if firstNodeErr != nil {
-		return nil, db.FirstQueryErrorHandle(err, response.WorkflowEngineNoFirstNodeSet)
+		return nil, db.FirstQueryErrorHandle(firstNodeErr, response.WorkflowEngineNoFirstNodeSet)
 	}
 
 	// 设置属性
@@ -257,6 +260,12 @@ func (engine *Engine) Initiate() error {
 		}
 
 		// 尝试写入工作流附加数据
+		if dataInterface, ok := engine.formData["data"]; ok {
+			saveWorkflowDataErr := engine.SaveWorkflowData(dataInterface)
+			if saveWorkflowDataErr != nil {
+				return saveWorkflowDataErr
+			}
+		}
 
 		// 记录日志
 		logErr := engine.Repo.workflowLogRepo.Create(&repo.WorkflowLog{
@@ -445,6 +454,12 @@ func (engine *Engine) ExamineApprove() error {
 		}
 
 		// 尝试写入工作流附加数据
+		if dataInterface, ok := engine.formData["data"]; ok {
+			saveWorkflowDataErr := engine.SaveWorkflowData(dataInterface)
+			if saveWorkflowDataErr != nil {
+				return saveWorkflowDataErr
+			}
+		}
 
 		// 记录日志
 		workflowLog := &repo.WorkflowLog{
@@ -500,7 +515,6 @@ func (engine *Engine) NextNode() (*repo.WorkflowNode, error) {
 		}
 		return nil, err
 	}
-	// todo 节点自定义条件判断，以后再说吧
 	return node, nil
 }
 
@@ -619,4 +633,47 @@ func (engine *Engine) MultipleOperator(userId uint64) bool {
 
 func (engine *Engine) GetWorkflowInfo() *repo.Workflow {
 	return engine.workflow
+}
+
+// SaveWorkflowData 保存工作流附加数据
+// todo 需要匹配用户工作流字段配置
+func (engine *Engine) SaveWorkflowData(v interface{}) error {
+	// 设置Mongo集合名称
+	collectionName := "workflow_data_" + engine.typeData.OnlyName
+	// 把横杠(-)转换为下划线
+	collectionName = strings.ReplaceAll(collectionName, "-", "_")
+
+	if workflowData, ok := v.(map[string]interface{}); ok {
+		// 先查有没有保存过数据
+		findData := make(map[string]interface{})             // 保存结果数据的Map
+		filter := bson.D{{"workflow_id", engine.workflowId}} // 查询条件
+		findOneErr := db.MongoClient.FindOne(collectionName, filter, &findData)
+		if findOneErr != nil && !errors.Is(findOneErr, mongo.ErrNoDocuments) {
+			// 忽略结果为空的错误
+			return exception.NewException(response.DbQueryError, findOneErr)
+		}
+
+		// 如果查到了就更新数据，否则就插入新数据
+		if len(findData) > 0 {
+			// 更新数据
+			updateData := bson.M{
+				"$set": workflowData,
+			}
+			// 更新
+			updateErr := db.MongoClient.UpdateOne(collectionName, filter, updateData)
+			if updateErr != nil {
+				return exception.NewException(response.WorkflowEngineSaveAdditionalDataFail, updateErr.Error())
+			}
+		} else {
+			// 添加工作流ID
+			workflowData["workflow_id"] = engine.workflowId
+			// 写入
+			err := db.MongoClient.InsertOne(collectionName, workflowData)
+			if err != nil {
+				return exception.NewException(response.WorkflowEngineSaveAdditionalDataFail, err)
+			}
+		}
+	}
+
+	return nil
 }

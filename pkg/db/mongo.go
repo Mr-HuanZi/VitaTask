@@ -88,3 +88,26 @@ func (r *MongoDBClient) InsertOne(collection string, data bson.M) error {
 
 	return err
 }
+
+// FindOne Mongo查询一条数据
+// 无数据时会返回 mongo.ErrNoDocuments 错误
+func (r *MongoDBClient) FindOne(collection string, filter bson.D, v interface{}) error {
+	c := r.GetCollection(collection)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	return c.FindOne(ctx, filter).Decode(v)
+}
+
+// UpdateOne Mongo更新一条数据
+func (r *MongoDBClient) UpdateOne(collection string, filter bson.D, u interface{}) error {
+	c := r.GetCollection(collection)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := c.UpdateOne(ctx, filter, u)
+
+	return err
+}

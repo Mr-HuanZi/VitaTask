@@ -93,6 +93,7 @@ const (
 	WorkflowEngineSaveMainDataFail       = 6108 // 工作流更新主数据失败
 	WorkflowEngineSaveOperatorFail       = 6109 // 工作流保存操作人失败
 	WorkflowEngineSaveLogFail            = 6110 // 工作流日志记录失败失败
+	WorkflowEngineSaveAdditionalDataFail = 6111 // 工作流附加数据保存失败
 
 	TimeParseFail            = 9000 // 时间解析失败
 	ElementQuantityTooLittle = 9001 // 元素数量太少
@@ -195,6 +196,7 @@ var codeMap = map[int]string{
 	WorkflowEngineSaveMainDataFail:       "工作流主数据保存失败",
 	WorkflowEngineSaveOperatorFail:       "工作流操作人保存失败",
 	WorkflowEngineSaveLogFail:            "工作流日志记录失败",
+	WorkflowEngineSaveAdditionalDataFail: "工作流附加数据保存失败",
 
 	TimeParseFail:            "时间解析失败",
 	ElementQuantityTooLittle: "元素数量太少",
