@@ -19,7 +19,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 	"strconv"
-	"strings"
 )
 
 type Engine struct {
@@ -640,8 +639,8 @@ func (engine *Engine) GetWorkflowInfo() *repo.Workflow {
 func (engine *Engine) SaveWorkflowData(v interface{}) error {
 	// 设置Mongo集合名称
 	collectionName := "workflow_data_" + engine.typeData.OnlyName
-	// 把横杠(-)转换为下划线
-	collectionName = strings.ReplaceAll(collectionName, "-", "_")
+	// 转换为 snake_case 形式, 非字母和数字会被忽略
+	collectionName = strutil.SnakeCase(collectionName)
 
 	if workflowData, ok := v.(map[string]interface{}); ok {
 		// 先查有没有保存过数据
