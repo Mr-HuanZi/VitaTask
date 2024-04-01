@@ -9,6 +9,7 @@ import (
 	"VitaTaskGo/pkg/response"
 	"errors"
 	"fmt"
+	"github.com/duke-git/lancet/v2/convertor"
 	"github.com/duke-git/lancet/v2/random"
 	"github.com/duke-git/lancet/v2/slice"
 	"github.com/duke-git/lancet/v2/strutil"
@@ -207,11 +208,12 @@ func (engine *Engine) Initiate() error {
 		}
 
 		// 设置工作流标题
-		title, ok := engine.formData["title"]
+		t, ok := engine.formData["title"]
 		if ok {
-			workflow.Title = title.(string)
-		} else {
-			// 默认标题
+			workflow.Title = convertor.ToString(t)
+		}
+		// 如果标题还是空，则设置默认标题
+		if len(workflow.Title) <= 0 {
 			workflow.Title = "工作流[" + engine.typeData.Name + "]审批"
 		}
 
