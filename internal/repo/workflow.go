@@ -24,6 +24,8 @@ type Workflow struct {
 	Node int `json:"node"`
 	// 提交次数
 	SubmitNum int `json:"submit_num"`
+	// 备注 发起时写在主表的是备注，审批过程填写的叫做 说明
+	Remarks string `json:"remarks"`
 	// 关联工作流节点表，指定用本表的Node字段关联WorkflowNode表的Node字段
 	NodeInfo *WorkflowNode      `json:"node_info" gorm:"-:migration;foreignKey:Node;references:Node"`
 	Operator []WorkflowOperator `json:"operator" gorm:"-:migration;WorkflowId:Node;references:ID"`

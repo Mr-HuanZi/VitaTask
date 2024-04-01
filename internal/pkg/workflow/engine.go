@@ -208,14 +208,14 @@ func (engine *Engine) Initiate() error {
 		}
 
 		// 设置工作流标题
-		t, ok := engine.formData["title"]
-		if ok {
-			workflow.Title = convertor.ToString(t)
-		}
+		workflow.Title = convertor.ToString(engine.formData["title"])
 		// 如果标题还是空，则设置默认标题
 		if len(workflow.Title) <= 0 {
 			workflow.Title = "工作流[" + engine.typeData.Name + "]审批"
 		}
+
+		// 工作流发起备注
+		workflow.Remarks = convertor.ToString(engine.formData["remarks"])
 
 		// 获取下一个节点配置
 		node, NextNodeErr := engine.NextNode()
