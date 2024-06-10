@@ -434,6 +434,17 @@ func (r *WorkflowService) NodeTypeAll(id uint) ([]repo.WorkflowNode, error) {
 	return workflowNodes, nil
 }
 
+// NodeTypeFirst 获取指定工作流模板的第一个节点
+func (r *WorkflowService) NodeTypeFirst(id uint) (*repo.WorkflowNode, error) {
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
+	// 获取该工作流类型的所有节点配置
+	workflowNodes, nodeErr := workflowNodeRepo.FirstNode(id)
+	if nodeErr != nil {
+		return nil, exception.ErrorHandle(nodeErr, response.DbQueryError, "查询节点失败: ")
+	}
+	return workflowNodes, nil
+}
+
 func (r *WorkflowService) Actions() []dto.UniversalSimpleList[string] {
 	kv := workflow.GetAllActionName()
 	s := make([]dto.UniversalSimpleList[string], len(kv))

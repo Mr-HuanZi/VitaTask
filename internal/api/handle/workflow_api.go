@@ -288,6 +288,20 @@ func (r WorkflowApi) NodeTypeAll(ctx *gin.Context) {
 	)
 }
 
+// NodeTypeFirst 获取指定工作流模板的第一个节点
+func (r WorkflowApi) NodeTypeFirst(ctx *gin.Context) {
+	var post dto.SingleUintRequired
+	if err := ctx.ShouldBindJSON(&post); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(service.NewWorkflowService(db.Db, ctx).NodeTypeFirst(post.ID)),
+	)
+}
+
 func (r WorkflowApi) Actions(ctx *gin.Context) {
 	ctx.JSON(
 		http.StatusOK,

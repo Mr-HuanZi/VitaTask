@@ -133,6 +133,7 @@ func Routers(r *gin.Engine) {
 		g.POST("detail", workflowApi.Detail)
 
 		{
+			// 工作流模板接口
 			twoG := g.Group("type")
 			twoG.POST("add", workflowApi.TypeAdd)
 			twoG.POST("update", workflowApi.TypeUpdate)
@@ -144,6 +145,7 @@ func Routers(r *gin.Engine) {
 		}
 
 		{
+			// 工作流节点接口
 			twoG := g.Group("node")
 			twoG.POST("add", workflowApi.NodeAdd)
 			twoG.POST("update", workflowApi.NodeUpdate)
@@ -151,6 +153,7 @@ func Routers(r *gin.Engine) {
 			twoG.POST("delete", workflowApi.NodeDelete)
 			twoG.POST("actions", workflowApi.Actions)
 			twoG.POST("type_all", workflowApi.NodeTypeAll)
+			twoG.POST("first", workflowApi.NodeTypeFirst)
 		}
 
 		{
