@@ -63,12 +63,12 @@ func FailHandle(err error) string {
 	res := reg.FindAllStringSubmatch(s, 3)         // 只匹配3次
 	// [['UserRegisterForm.Password' UserRegisterForm.Password] ['Password' Password] ['required' required]]
 	if len(res) < 3 {
-		return "" // 如果匹配结果小于3次，则代表匹配失败
+		return "传递的参数格式有误" // 如果匹配结果小于3次，则代表匹配失败
 	}
 	textSlice := make([]string, 0)
 	for i := 0; i < 3; i++ {
 		if len(res[i]) < 2 {
-			return "" // 表示返回的格式不是这里需要的
+			return "参数校验失败，未知格式: " + s // 表示返回的格式不是这里需要的
 		}
 
 		if i == 1 {
