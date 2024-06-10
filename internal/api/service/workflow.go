@@ -423,6 +423,17 @@ func (r *WorkflowService) NodeList(query dto.WorkflowNodeQueryDto) (*dto.PagedRe
 	return pkg.PagedResult(l, total, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "列表查询失败: ")
 }
 
+// NodeTypeAll 获取指定工作流模板的所有节点(无分页)
+func (r *WorkflowService) NodeTypeAll(id uint) ([]repo.WorkflowNode, error) {
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
+	// 获取该工作流类型的所有节点配置
+	workflowNodes, nodeErr := workflowNodeRepo.GetTypeAll(id)
+	if nodeErr != nil {
+		return nil, exception.ErrorHandle(nodeErr, response.DbQueryError, "查询节点失败: ")
+	}
+	return workflowNodes, nil
+}
+
 func (r *WorkflowService) Actions() []dto.UniversalSimpleList[string] {
 	kv := workflow.GetAllActionName()
 	s := make([]dto.UniversalSimpleList[string], len(kv))
