@@ -55,7 +55,7 @@ type GatewayConfig struct {
 }
 
 type Config struct {
-	Jwt     JwtConfig     `yaml:"auth"`
+	Jwt     JwtConfig     `yaml:"jwt"`
 	Mysql   MySQLConfig   `yaml:"mysql"`
 	Mongo   MongoConfig   `yaml:"mongo"`
 	Redis   RedisConfig   `yaml:"redis"`
