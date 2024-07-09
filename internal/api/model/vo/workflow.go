@@ -10,11 +10,13 @@ type WorkflowDetailVo struct {
 }
 
 type WorkflowNodeVo struct {
-	Node        int    `json:"node,omitempty"`
-	Name        string `json:"name"`
-	Action      string `json:"action"`
-	ActionValue string `json:"action_value"`
-	Everyone    int    `json:"everyone"`
+	ID           uint                `json:"id,omitempty" gorm:"primaryKey"`
+	Node         int                 `json:"node,omitempty"`
+	Name         string              `json:"name"`
+	Action       string              `json:"action"`
+	ActionValue  string              `json:"action_value"`
+	ActionOption *OptionItem[string] `json:"action_option"`
+	Everyone     int                 `json:"everyone"`
 }
 
 type WorkflowLogVo struct {

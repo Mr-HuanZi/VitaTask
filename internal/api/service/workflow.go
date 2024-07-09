@@ -173,6 +173,7 @@ func (r *WorkflowService) Detail(id uint) (*vo.WorkflowDetailVo, error) {
 		}
 		// 节点
 		workflowDetailVo.Node = new(vo.WorkflowNodeVo)
+		workflowDetailVo.Node.ID = node.ID
 		workflowDetailVo.Node.Node = node.Node
 		workflowDetailVo.Node.Name = node.Name
 		workflowDetailVo.Node.Action = node.Action
@@ -424,25 +425,68 @@ func (r *WorkflowService) NodeList(query dto.WorkflowNodeQueryDto) (*dto.PagedRe
 }
 
 // NodeTypeAll 获取指定工作流模板的所有节点(无分页)
-func (r *WorkflowService) NodeTypeAll(id uint) ([]repo.WorkflowNode, error) {
+func (r *WorkflowService) NodeTypeAll(id uint) ([]vo.WorkflowNodeVo, error) {
 	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
 	// 获取该工作流类型的所有节点配置
 	workflowNodes, nodeErr := workflowNodeRepo.GetTypeAll(id)
 	if nodeErr != nil {
 		return nil, exception.ErrorHandle(nodeErr, response.DbQueryError, "查询节点失败: ")
 	}
-	return workflowNodes, nil
+	// 获取该节点的审批动作
+	allActions := workflow.GetAllActionName()
+
+	voList := make([]vo.WorkflowNodeVo, len(workflowNodes))
+
+	for i, node := range workflowNodes {
+		// 初始化VO
+		nodeVo := vo.WorkflowNodeVo{}
+		nodeVo.ID = node.ID
+		nodeVo.Node = node.Node
+		nodeVo.Name = node.Name
+		nodeVo.Action = node.Action
+		nodeVo.ActionValue = node.ActionValue
+		nodeVo.Everyone = node.Everyone
+
+		if v, ok := allActions[node.Action]; ok {
+			nodeVo.ActionOption = &vo.OptionItem[string]{
+				Label: v,
+				Value: node.Action,
+			}
+		}
+
+		voList[i] = nodeVo
+	}
+
+	return voList, nil
 }
 
 // NodeTypeFirst 获取指定工作流模板的第一个节点
-func (r *WorkflowService) NodeTypeFirst(id uint) (*repo.WorkflowNode, error) {
+func (r *WorkflowService) NodeTypeFirst(id uint) (*vo.WorkflowNodeVo, error) {
 	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
 	// 获取该工作流类型的所有节点配置
-	workflowNodes, nodeErr := workflowNodeRepo.FirstNode(id)
-	if nodeErr != nil {
+	workflowNode, nodeErr := workflowNodeRepo.FirstNode(id)
+	if nodeErr != nil || workflowNode == nil {
 		return nil, exception.ErrorHandle(nodeErr, response.DbQueryError, "查询节点失败: ")
 	}
-	return workflowNodes, nil
+	// 获取该节点的审批动作
+	allActions := workflow.GetAllActionName()
+
+	// 初始化VO
+	nodeVo := new(vo.WorkflowNodeVo)
+	nodeVo.Node = workflowNode.Node
+	nodeVo.Name = workflowNode.Name
+	nodeVo.Action = workflowNode.Action
+	nodeVo.ActionValue = workflowNode.ActionValue
+	nodeVo.Everyone = workflowNode.Everyone
+
+	if v, ok := allActions[workflowNode.Action]; ok {
+		nodeVo.ActionOption = &vo.OptionItem[string]{
+			Label: v,
+			Value: workflowNode.Action,
+		}
+	}
+
+	return nodeVo, nil
 }
 
 func (r *WorkflowService) Actions() []dto.UniversalSimpleList[string] {
