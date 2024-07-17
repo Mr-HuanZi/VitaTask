@@ -198,6 +198,7 @@ func (r *WorkflowService) Detail(id uint) (*vo.WorkflowDetailVo, error) {
 	return workflowDetailVo, nil
 }
 
+// TypeAdd 新增工作流类型(模板)
 func (r *WorkflowService) TypeAdd(post dto.WorkflowTypeDto) (*repo.WorkflowType, error) {
 	if len(post.OnlyName) <= 0 {
 		// 唯一标志为必填项
@@ -209,6 +210,7 @@ func (r *WorkflowService) TypeAdd(post dto.WorkflowTypeDto) (*repo.WorkflowType,
 	}
 
 	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
 	// 检查 OnlyName 是否有重复
 	if workflowTypeRepo.ExistByOnlyName(post.OnlyName) {
 		// 有记录，说明存在相同的
@@ -229,10 +231,35 @@ func (r *WorkflowService) TypeAdd(post dto.WorkflowTypeDto) (*repo.WorkflowType,
 		newData.System = 0
 	}
 
-	saveErr := workflowTypeRepo.Create(newData)
-	return newData, exception.ErrorHandle(saveErr, response.WorkflowTypeCreateFail)
+	// 自动创建一个新的节点
+	newNode := &repo.WorkflowNode{
+		Name:        "发起",
+		Node:        1,
+		Action:      "",
+		ActionValue: "",
+		Everyone:    0,
+	}
+
+	// 在事务里执行
+	err := r.Db.Transaction(func(tx *gorm.DB) error {
+		// 重置数据库实例
+		workflowTypeRepo.SetDbInstance(tx)
+		workflowNodeRepo.SetDbInstance(tx)
+
+		// 保存工作流模板(类型)数据
+		err := workflowTypeRepo.Create(newData)
+		if err != nil {
+			return err
+		}
+		newNode.TypeId = newData.ID
+		// 保存工作流节点
+		return workflowNodeRepo.Create(newNode)
+	})
+
+	return newData, exception.ErrorHandle(err, response.WorkflowTypeCreateFail)
 }
 
+// TypeUpdate 更新工作流类型(模板)
 func (r *WorkflowService) TypeUpdate(post dto.WorkflowTypeDto) (*repo.WorkflowType, error) {
 	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
 
