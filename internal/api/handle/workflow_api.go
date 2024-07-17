@@ -288,8 +288,8 @@ func (r WorkflowApi) NodeTypeAll(ctx *gin.Context) {
 	)
 }
 
-// NodeTypeFirst 获取指定工作流模板的第一个节点
-func (r WorkflowApi) NodeTypeFirst(ctx *gin.Context) {
+// NodeFirst 获取指定工作流模板的第一个节点
+func (r WorkflowApi) NodeFirst(ctx *gin.Context) {
 	var post dto.SingleUintRequired
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -298,7 +298,35 @@ func (r WorkflowApi) NodeTypeFirst(ctx *gin.Context) {
 
 	ctx.JSON(
 		http.StatusOK,
-		response.Auto(service.NewWorkflowService(db.Db, ctx).NodeTypeFirst(post.ID)),
+		response.Auto(service.NewWorkflowService(db.Db, ctx).NodeFirst(post.ID)),
+	)
+}
+
+// NodeSaveSchema 保存节点表单配置
+func (r WorkflowApi) NodeSaveSchema(ctx *gin.Context) {
+	var post dto.WorkflowNodeSaveFormDto
+	if err := ctx.ShouldBindJSON(&post); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(nil, service.NewWorkflowService(db.Db, ctx).NodeSaveSchema(post)),
+	)
+}
+
+// NodeGetSchema 获取节点表单配置
+func (r WorkflowApi) NodeGetSchema(ctx *gin.Context) {
+	var post dto.SingleUintRequired
+	if err := ctx.ShouldBindJSON(&post); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(service.NewWorkflowService(db.Db, ctx).NodeGetSchema(post.ID)),
 	)
 }
 

@@ -66,6 +66,11 @@ type WorkflowNodeQueryBo struct {
 	CreateTime []int64 `json:"create_time,omitempty"`
 }
 
+type WorkflowNodeSaveFormDto struct {
+	UintId
+	Schema string `json:"schema"`
+}
+
 type WorkflowInitiateDto struct {
 	TypeId  uint        `json:"type_id,omitempty"` // 工作流类型ID
 	Title   string      `json:"title"`

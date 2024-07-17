@@ -16,6 +16,7 @@ import (
 	"github.com/duke-git/lancet/v2/slice"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"regexp"
 	"time"
 )
 
@@ -201,6 +202,10 @@ func (r *WorkflowService) TypeAdd(post dto.WorkflowTypeDto) (*repo.WorkflowType,
 	if len(post.OnlyName) <= 0 {
 		// 唯一标志为必填项
 		return nil, exception.NewException(response.WorkflowTypeOnlyNameEmpty)
+	}
+	// 唯一标识只能是英文和数字还有下划线
+	if !regexp.MustCompile(`^[a-zA-Z0-9_]+$`).MatchString(post.OnlyName) {
+		return nil, exception.NewException(response.WorkflowTypeOnlyNameIllegal)
 	}
 
 	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
@@ -460,8 +465,8 @@ func (r *WorkflowService) NodeTypeAll(id uint) ([]vo.WorkflowNodeVo, error) {
 	return voList, nil
 }
 
-// NodeTypeFirst 获取指定工作流模板的第一个节点
-func (r *WorkflowService) NodeTypeFirst(id uint) (*vo.WorkflowNodeVo, error) {
+// NodeFirst 获取指定工作流模板的第一个节点
+func (r *WorkflowService) NodeFirst(id uint) (*vo.WorkflowNodeVo, error) {
 	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
 	// 获取该工作流类型的所有节点配置
 	workflowNode, nodeErr := workflowNodeRepo.FirstNode(id)
@@ -487,6 +492,29 @@ func (r *WorkflowService) NodeTypeFirst(id uint) (*vo.WorkflowNodeVo, error) {
 	}
 
 	return nodeVo, nil
+}
+
+// NodeSaveSchema 保存节点表单配置
+func (r *WorkflowService) NodeSaveSchema(post dto.WorkflowNodeSaveFormDto) error {
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
+	// 获取节点记录
+	nodeData, err := workflowNodeRepo.Get(post.ID)
+	if err != nil {
+		return db.FirstQueryErrorHandle(err, response.WorkflowNodeNotExist)
+	}
+
+	// 保存数据
+	err = workflowNodeRepo.UpdateField(nodeData.ID, "schema", post.Schema)
+	return exception.ErrorHandle(err, response.WorkflowTypeUpdateFail)
+}
+
+// NodeGetSchema 获取节点表单配置
+func (r *WorkflowService) NodeGetSchema(id uint) (string, error) {
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
+	// 获取节点记录
+	nodeData, err := workflowNodeRepo.Get(id)
+	// 只返回表单配置数据
+	return nodeData.Schema, db.FirstQueryErrorHandle(err, response.WorkflowNodeNotExist)
 }
 
 func (r *WorkflowService) Actions() []dto.UniversalSimpleList[string] {

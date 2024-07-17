@@ -14,6 +14,7 @@ type WorkflowNode struct {
 	Action      string `json:"action"`
 	ActionValue string `json:"action_value"`
 	Everyone    int    `json:"everyone"`
+	Schema      string `json:"schema"` // 节点表单设计数据
 }
 
 func (receiver *WorkflowNode) TableName() string {
