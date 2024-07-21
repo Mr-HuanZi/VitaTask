@@ -3,7 +3,6 @@ module VitaTaskGo
 go 1.20
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/duke-git/lancet/v2 v2.1.19
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-module/carbon/v2 v2.2.3
@@ -16,6 +15,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/mysql v1.3.3
 	gorm.io/gorm v1.23.4
+	github.com/golang-jwt/jwt/v5 v5.2.1
 )
 
 require (

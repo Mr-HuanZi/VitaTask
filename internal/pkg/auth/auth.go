@@ -10,8 +10,8 @@ import (
 	"VitaTaskGo/pkg/exception"
 	"VitaTaskGo/pkg/response"
 	"errors"
-	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 	"strings"
 	"time"
@@ -20,7 +20,7 @@ import (
 type UserJwtClaims struct {
 	UserId   uint64
 	Username string
-	jwtGo.StandardClaims
+	jwt.RegisteredClaims
 }
 
 // GenerateToken 生成Token
@@ -30,26 +30,24 @@ func GenerateToken(userId uint64, username string) (string, error) {
 		// 默认10分钟过期
 		expireSeconds = 600
 	}
-	expiresAt := time.Now().Add(time.Second * time.Duration(expireSeconds)).Unix()
+	expiresAt := time.Now().Add(time.Second * time.Duration(expireSeconds))
 
 	newClaims := UserJwtClaims{
-		UserId:   userId,
-		Username: username,
-		StandardClaims: jwtGo.StandardClaims{
-			// 过期时间
-			ExpiresAt: expiresAt,
-			// 签发时间
-			IssuedAt: time.Now().Unix(),
-			// 签发人
-			Issuer: config.Get().Jwt.Issuer,
+		userId,
+		username,
+		jwt.RegisteredClaims{
+			Issuer:    config.Get().Jwt.Issuer,        // 签发人
+			ExpiresAt: jwt.NewNumericDate(expiresAt),  // 过期时间
+			IssuedAt:  jwt.NewNumericDate(time.Now()), // 签发时间
 		},
 	}
-	token := jwtGo.NewWithClaims(jwtGo.SigningMethodHS256, newClaims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, newClaims)
 
 	tokenString, err := token.SignedString([]byte(config.Get().Jwt.Key))
 	if err != nil {
 		return "", err
 	}
+
 	return tokenString, nil
 }
 
@@ -60,7 +58,7 @@ func ParseToken(tokenString string) (*UserJwtClaims, error) {
 	}
 
 	claims := &UserJwtClaims{} // 将Claims解析到这个结构体
-	_, err := jwtGo.ParseWithClaims(tokenString, claims, func(token *jwtGo.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.Get().Jwt.Key), nil
 	})
 
