@@ -48,6 +48,8 @@ var formVerificationFailed = map[string]string{
 
 	// 工作流
 	"WorkflowNodeQueryDto.TypeId.required": "缺少工作流类型查询项",
+	"WorkflowNodeDto.TypeId.required":      "请选择工作流类型",
+	"WorkflowNodeDto.Name.required":        "请填写工作流节点名称",
 
 	// 其它
 	"SingleUintRequired.ID.required": "缺少ID参数",

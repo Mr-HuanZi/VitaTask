@@ -40,9 +40,9 @@ type WorkflowTypeQueryBo struct {
 
 type WorkflowNodeDto struct {
 	UintId
-	TypeId      uint   `json:"type_id,uint,omitempty"` // 工作流类型ID
-	Node        int    `json:"node,int,omitempty"`     // 节点序号
-	Name        string `json:"name"`
+	TypeId      uint   `json:"type_id,uint,omitempty" binding:"required"` // 工作流类型ID
+	Node        int    `json:"node,int,omitempty"`                        // 节点序号
+	Name        string `json:"name" binding:"required"`
 	Action      string `json:"action"`
 	ActionValue string `json:"action_value"`
 }
