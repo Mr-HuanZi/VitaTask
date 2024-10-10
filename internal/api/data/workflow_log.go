@@ -111,3 +111,16 @@ func (r *WorkflowLogRepo) GetWorkflowAll(workflowId uint) ([]repo.WorkflowLog, e
 func (r *WorkflowLogRepo) SetDbInstance(tx *gorm.DB) {
 	r.tx = tx
 }
+
+// GetUserHandledObj 获取用户已处理的工作流子查询对象
+func (r *WorkflowLogRepo) GetUserHandledObj(userid uint64, action string) *gorm.DB {
+	tx := r.tx.Model(repo.WorkflowLog{}).
+		Select("workflow_id").
+		Where("operator = ?", userid)
+
+	if len(action) > 0 {
+		tx = tx.Where("action <> ?", action)
+	}
+
+	return tx.Group("workflow_id")
+}

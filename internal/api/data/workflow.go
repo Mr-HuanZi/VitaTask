@@ -50,7 +50,7 @@ func (r *WorkflowRepo) UpdateFields(id uint, values interface{}) error {
 	return r.tx.Model(&repo.Workflow{}).Where("id = ?", id).Updates(values).Error
 }
 
-func (r *WorkflowRepo) PageList(query dto.WorkflowListQueryDto) ([]repo.Workflow, int64, error) {
+func (r *WorkflowRepo) PageList(query dto.WorkflowListQueryDto, queryExp repo.WorkflowPageListQueryExp) ([]repo.Workflow, int64, error) {
 	var (
 		list  []repo.Workflow = nil
 		total int64
@@ -62,8 +62,24 @@ func (r *WorkflowRepo) PageList(query dto.WorkflowListQueryDto) ([]repo.Workflow
 		tx = tx.Where("id = ?", query.ID)
 	}
 
+	// 工作流类型查询
 	if len(query.TypeId) > 0 {
 		tx = tx.Where("type_id IN ?", query.TypeId)
+	}
+
+	// 发起人ID查询
+	if query.Promoter > 0 {
+		tx = tx.Where("promoter = ?", query.Promoter)
+	}
+
+	// 指定用户处理过的记录
+	if queryExp.HandledDb != nil {
+		tx = tx.Where("id IN (?)", queryExp.HandledDb)
+	}
+
+	// 当前操作人查询
+	if queryExp.OperatorDb != nil {
+		tx = tx.Where("id IN (?)", queryExp.OperatorDb)
 	}
 
 	if len(query.CreateTime) >= 2 {

@@ -33,6 +33,11 @@ type Workflow struct {
 	StatusText string `json:"status_text" gorm:"-"`
 }
 
+type WorkflowPageListQueryExp struct {
+	OperatorDb *gorm.DB
+	HandledDb  *gorm.DB
+}
+
 func (receiver *Workflow) TableName() string {
 	return GetTablePrefix() + "workflow"
 }
@@ -44,7 +49,7 @@ type WorkflowRepo interface {
 	Get(id uint) (*Workflow, error)
 	UpdateField(id uint, field string, value interface{}) error
 	UpdateFields(id uint, values interface{}) error
-	PageList(query dto.WorkflowListQueryDto) ([]Workflow, int64, error)
+	PageList(query dto.WorkflowListQueryDto, queryExp WorkflowPageListQueryExp) ([]Workflow, int64, error)
 	SetDbInstance(tx *gorm.DB)
 	GetDayTotal(start, end int64) (int64, error)
 }

@@ -5,6 +5,7 @@ import (
 	"VitaTaskGo/internal/api/model/dto"
 	"VitaTaskGo/internal/api/model/vo"
 	"VitaTaskGo/internal/pkg"
+	"VitaTaskGo/internal/pkg/constant"
 	"VitaTaskGo/internal/pkg/workflow"
 	"VitaTaskGo/internal/repo"
 	"VitaTaskGo/pkg/db"
@@ -93,8 +94,65 @@ func (r *WorkflowService) ExamineApprove(post dto.WorkflowExamineApproveDto) (*r
 	return engine.GetWorkflowInfo(), exception.ErrorHandle(err, response.SystemFail)
 }
 
+// WorkflowList 我发起的工作流分页列表
+func (r *WorkflowService) WorkflowList(query dto.WorkflowListQueryDto) (*dto.PagedResult[repo.Workflow], error) {
+	// 限制只能查询 非系统内置 工作流类型
+	query.System = false
+
+	// 获取当前用户ID
+	currUid, ok := r.ctx.Get(constant.CurrUidKey)
+	if !ok {
+		return nil, exception.NewException(response.SystemFail)
+	}
+	query.Promoter = currUid.(uint64)
+
+	return r.PageList(query, repo.WorkflowPageListQueryExp{})
+}
+
+// HandledList 我的已办工作流分页列表
+func (r *WorkflowService) HandledList(query dto.WorkflowListQueryDto) (*dto.PagedResult[repo.Workflow], error) {
+	// 限制只能查询 非系统内置 工作流类型
+	query.System = false
+	// 获取当前用户ID
+	currUid, ok := r.ctx.Get(constant.CurrUidKey)
+	if !ok {
+		return nil, exception.NewException(response.SystemFail)
+	}
+
+	// 初始化Repo
+	workflowLogRepo := data.NewWorkflowLogRepo(r.Db, r.ctx)
+	obj := workflowLogRepo.GetUserHandledObj(currUid.(uint64), workflow.Initiate)
+
+	return r.PageList(query, repo.WorkflowPageListQueryExp{HandledDb: obj})
+}
+
+// ToDoList 我的待办工作流分页列表
+func (r *WorkflowService) ToDoList(query dto.WorkflowListQueryDto) (*dto.PagedResult[repo.Workflow], error) {
+	// 限制只能查询 非系统内置 工作流类型
+	query.System = false
+	// 获取当前用户ID
+	currUid, ok := r.ctx.Get(constant.CurrUidKey)
+	if !ok {
+		return nil, exception.NewException(response.SystemFail)
+	}
+
+	// 初始化Repo
+	workflowOperatorRepo := data.NewWorkflowOperatorRepo(r.Db, r.ctx)
+	obj := workflowOperatorRepo.GetUserTodoObj(currUid.(uint64))
+
+	return r.PageList(query, repo.WorkflowPageListQueryExp{OperatorDb: obj})
+}
+
+// AllPageList 所有工作流分页列表
+func (r *WorkflowService) AllPageList(query dto.WorkflowListQueryDto) (*dto.PagedResult[repo.Workflow], error) {
+	// 限制只能查询 非系统内置 工作流类型
+	query.System = false
+
+	return r.PageList(query, repo.WorkflowPageListQueryExp{})
+}
+
 // PageList 分页列表
-func (r *WorkflowService) PageList(query dto.WorkflowListQueryDto) (*dto.PagedResult[repo.Workflow], error) {
+func (r *WorkflowService) PageList(query dto.WorkflowListQueryDto, queryExp repo.WorkflowPageListQueryExp) (*dto.PagedResult[repo.Workflow], error) {
 	workflowRepo := data.NewWorkflowRepo(r.Db, r.ctx)
 	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
 	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
@@ -112,7 +170,7 @@ func (r *WorkflowService) PageList(query dto.WorkflowListQueryDto) (*dto.PagedRe
 		}
 	}
 
-	l, total, err := workflowRepo.PageList(query)
+	l, total, err := workflowRepo.PageList(query, queryExp)
 	if err != nil {
 		return pkg.PagedResult[repo.Workflow](nil, 0, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "列表查询失败: ")
 	}

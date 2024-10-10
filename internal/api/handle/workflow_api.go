@@ -50,12 +50,9 @@ func (r WorkflowApi) All(ctx *gin.Context) {
 		return
 	}
 
-	// 允许查询 非系统内置 工作流类型
-	query.System = true
-
 	ctx.JSON(
 		http.StatusOK,
-		response.Auto(service.NewWorkflowService(db.Db, ctx).PageList(query)),
+		response.Auto(service.NewWorkflowService(db.Db, ctx).AllPageList(query)),
 	)
 }
 
@@ -66,12 +63,9 @@ func (r WorkflowApi) ToDo(ctx *gin.Context) {
 		return
 	}
 
-	// 限制只能查询 非系统内置 工作流类型
-	query.System = false
-
 	ctx.JSON(
 		http.StatusOK,
-		response.Auto(service.NewWorkflowService(db.Db, ctx).PageList(query)),
+		response.Auto(service.NewWorkflowService(db.Db, ctx).ToDoList(query)),
 	)
 }
 
@@ -83,12 +77,9 @@ func (r WorkflowApi) Handled(ctx *gin.Context) {
 		return
 	}
 
-	// 限制只能查询 非系统内置 工作流类型
-	query.System = false
-
 	ctx.JSON(
 		http.StatusOK,
-		response.Auto(service.NewWorkflowService(db.Db, ctx).PageList(query)),
+		response.Auto(service.NewWorkflowService(db.Db, ctx).HandledList(query)),
 	)
 }
 
@@ -100,12 +91,9 @@ func (r WorkflowApi) List(ctx *gin.Context) {
 		return
 	}
 
-	// 限制只能查询 非系统内置 工作流类型
-	query.System = false
-
 	ctx.JSON(
 		http.StatusOK,
-		response.Auto(service.NewWorkflowService(db.Db, ctx).PageList(query)),
+		response.Auto(service.NewWorkflowService(db.Db, ctx).WorkflowList(query)),
 	)
 }
 

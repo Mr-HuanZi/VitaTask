@@ -74,3 +74,12 @@ func (r *WorkflowOperatorRepo) SetHandled(workflowId uint, node int, userId uint
 		Where(&repo.WorkflowOperator{WorkflowId: workflowId, Node: node, UserId: userId}).
 		Update("handled", 1).Error
 }
+
+// GetUserTodoObj 获取用户待办列表查询对象
+func (r *WorkflowOperatorRepo) GetUserTodoObj(userid uint64) *gorm.DB {
+	return r.tx.Model(&repo.WorkflowOperator{}).
+		Select("workflow_id").
+		Where("handled = ?", 0).
+		Where("user_id = ?", userid).
+		Group("workflow_id")
+}

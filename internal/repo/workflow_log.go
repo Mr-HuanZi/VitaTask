@@ -30,4 +30,6 @@ type WorkflowLogRepo interface {
 	// GetWorkflowAll 获取某工作流所有日志
 	GetWorkflowAll(workflowId uint) ([]WorkflowLog, error)
 	SetDbInstance(tx *gorm.DB)
+	// GetUserHandledObj 获取用户已处理的工作流子查询对象
+	GetUserHandledObj(userid uint64, action string) (tx *gorm.DB)
 }

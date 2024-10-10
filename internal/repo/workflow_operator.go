@@ -38,4 +38,6 @@ type WorkflowOperatorRepo interface {
 	RemoveWorkflowAllOperator(workflowId uint) error
 	// SetHandled 将当前步骤的指定操作人改为已操作的状态
 	SetHandled(workflowId uint, node int, userId uint64) error
+	// GetUserTodoObj 获取用户待办列表查询对象
+	GetUserTodoObj(userid uint64) *gorm.DB
 }
