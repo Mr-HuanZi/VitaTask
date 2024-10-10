@@ -99,7 +99,7 @@ func (r *WorkflowService) PageList(query dto.WorkflowListQueryDto) (*dto.PagedRe
 	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
 	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
 
-	// 获取所有非系统级的工作流类型
+	// 获取所有非系统内置的工作流类型
 	if !query.System {
 		typeIds, err := workflowTypeRepo.GetNotSystemIds()
 		if err != nil || len(typeIds) <= 0 {
@@ -224,12 +224,6 @@ func (r *WorkflowService) TypeAdd(post dto.WorkflowTypeDto) (*repo.WorkflowType,
 		OnlyName:   post.OnlyName,
 		Illustrate: post.Illustrate,
 	}
-	// 是否系统级
-	if post.System {
-		newData.System = 1
-	} else {
-		newData.System = 0
-	}
 
 	// 自动创建一个新的节点
 	newNode := &repo.WorkflowNode{
@@ -273,12 +267,6 @@ func (r *WorkflowService) TypeUpdate(post dto.WorkflowTypeDto) (*repo.WorkflowTy
 	one.Name = post.Name
 	one.OrgId = post.OrgId
 	one.Illustrate = post.Illustrate
-	// 是否系统级
-	if post.System {
-		one.System = 1
-	} else {
-		one.System = 0
-	}
 
 	saveErr := workflowTypeRepo.Save(one)
 	return one, exception.ErrorHandle(saveErr, response.WorkflowTypeUpdateFail)

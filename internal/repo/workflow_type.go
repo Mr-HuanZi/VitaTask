@@ -14,7 +14,7 @@ type WorkflowType struct {
 	OrgId uint `json:"org_id,omitempty"`
 	// 工作流类型唯一名称。全局唯一名称，此字段用于匹配流程的模型、实例注册等，例如用作模型，表名为【flow_data_test】。该字段只需要填写【test】即可
 	OnlyName string `json:"only_name,omitempty"`
-	// 系统级工作流类型 1-是 0-否
+	// 系统内置工作流类型(不允许前端修改) 1-是 0-否
 	System int8 `json:"system,omitempty"`
 }
 

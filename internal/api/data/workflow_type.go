@@ -112,7 +112,7 @@ func (r *WorkflowTypeRepo) GetOptions(keyWords string, system bool) ([]repo.Work
 		tx = tx.Where("name LIKE ?", "%"+keyWords+"%")
 	}
 	if !system {
-		// 只搜索非系统级
+		// 只搜索非系统内置
 		tx.Where("system", 0)
 	}
 
