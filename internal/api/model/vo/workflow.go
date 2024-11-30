@@ -44,3 +44,18 @@ type WorkflowFootprintVo struct {
 	Explain   string                        `json:"explain"`
 	Time      int64                         `json:"time"`
 }
+
+type WorkflowListVo struct {
+	ID         uint   `json:"id,omitempty"`
+	CreateTime int64  `json:"create_time"` // 毫秒时间戳
+	Name       string `json:"name,omitempty"`
+	// 描述
+	Illustrate string `json:"illustrate"`
+	// 所属组织。如果为空则为全局工作流
+	OrgId uint `json:"org_id,omitempty"`
+	// 工作流类型唯一名称。全局唯一名称，此字段用于匹配流程的模型、实例注册等，例如用作模型，表名为【flow_data_test】。该字段只需要填写【test】即可
+	OnlyName string `json:"only_name,omitempty"`
+	// 系统内置工作流类型(不允许前端修改) 1-是 0-否
+	System       int8  `json:"system,omitempty"`
+	UsedQuantity int64 `json:"used_quantity"`
+}

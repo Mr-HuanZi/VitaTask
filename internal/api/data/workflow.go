@@ -139,3 +139,34 @@ func (r *WorkflowRepo) GetDayTotal(start, end int64) (int64, error) {
 func (r *WorkflowRepo) SetDbInstance(tx *gorm.DB) {
 	r.tx = tx
 }
+
+// GetTypeUsedQuantity 获取工作流类型使用数量
+func (r *WorkflowRepo) GetTypeUsedQuantity(typeId uint) (int64, error) {
+	var count int64
+	err := r.tx.Model(&repo.Workflow{}).Where("type_id = ?", typeId).Count(&count).Error
+	return count, err
+}
+
+// GetTypeUsedQuantityList 批量获取工作流类型已使用的数量
+func (r *WorkflowRepo) GetTypeUsedQuantityList(typeIds []uint) (map[uint]int64, error) {
+	res := make(map[uint]int64)
+	repoRes := make([]struct {
+		TypeId uint
+		Count  int64
+	}, 0)
+
+	if len(typeIds) <= 0 {
+		return res, nil
+	}
+
+	// 查询工作流数量
+	err := r.tx.Model(&repo.Workflow{}).Where("type_id IN ?", typeIds).Group("type_id").
+		Select("type_id, count(*) as count").Find(&repoRes).Error
+
+	// 赋值到Map
+	for _, v := range repoRes {
+		res[v.TypeId] = v.Count
+	}
+
+	return res, err
+}

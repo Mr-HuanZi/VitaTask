@@ -52,4 +52,6 @@ type WorkflowRepo interface {
 	PageList(query dto.WorkflowListQueryDto, queryExp WorkflowPageListQueryExp) ([]Workflow, int64, error)
 	SetDbInstance(tx *gorm.DB)
 	GetDayTotal(start, end int64) (int64, error)
+	GetTypeUsedQuantity(uint) (int64, error)                // 获取工作流类型已使用的数量
+	GetTypeUsedQuantityList([]uint) (map[uint]int64, error) // 批量获取工作流类型已使用的数量
 }

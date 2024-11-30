@@ -330,12 +330,13 @@ func (r *WorkflowService) TypeUpdate(post dto.WorkflowTypeDto) (*repo.WorkflowTy
 	return one, exception.ErrorHandle(saveErr, response.WorkflowTypeUpdateFail)
 }
 
-func (r *WorkflowService) TypeList(query dto.WorkflowTypeQueryDto) (*dto.PagedResult[repo.WorkflowType], error) {
+func (r *WorkflowService) TypeList(query dto.WorkflowTypeQueryDto) (*dto.PagedResult[vo.WorkflowListVo], error) {
 	var (
 		queryBo dto.WorkflowTypeQueryBo
 	)
 
 	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
+	workflowRepo := data.NewWorkflowRepo(r.Db, r.ctx)
 
 	// 搜索处理
 	queryBo.UintId = query.UintId
@@ -350,7 +351,7 @@ func (r *WorkflowService) TypeList(query dto.WorkflowTypeQueryDto) (*dto.PagedRe
 	if len(query.CreateTime) >= 2 {
 		createTimeRange, err := time_tool.ParseStartEndTimeToUnix(query.CreateTime, time.DateOnly, "milli")
 		if err != nil {
-			return pkg.PagedResult[repo.WorkflowType](nil, 0, int64(query.Page)), exception.ErrorHandle(err, response.TimeParseFail)
+			return pkg.PagedResult[vo.WorkflowListVo](nil, 0, int64(query.Page)), exception.ErrorHandle(err, response.TimeParseFail)
 		}
 
 		queryBo.CreateTime = createTimeRange
@@ -358,14 +359,58 @@ func (r *WorkflowService) TypeList(query dto.WorkflowTypeQueryDto) (*dto.PagedRe
 
 	l, total, err := workflowTypeRepo.PageList(queryBo)
 
-	return pkg.PagedResult(l, total, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "列表查询失败: ")
+	// 获取每个工作流模板的使用数量
+	// 提取工作流模板ID
+	ids := make([]uint, len(l))
+	for i, v := range l {
+		ids[i] = v.ID
+	}
+
+	usedQuantity, usedQuantityErr := workflowRepo.GetTypeUsedQuantityList(ids)
+	if usedQuantityErr != nil {
+		return pkg.PagedResult[vo.WorkflowListVo](nil, 0, int64(query.Page)), exception.ErrorHandle(err, response.WorkflowTypeUsedQueryFail)
+	}
+
+	// 转换VO
+	voList := make([]vo.WorkflowListVo, len(l))
+	for i, v := range l {
+		voList[i].ID = v.ID
+		voList[i].Name = v.Name
+		voList[i].OrgId = v.OrgId
+		voList[i].OnlyName = v.OnlyName
+		voList[i].Illustrate = v.Illustrate
+		voList[i].CreateTime = v.CreateTime
+		voList[i].UsedQuantity = usedQuantity[v.ID]
+		voList[i].System = v.System
+	}
+
+	return pkg.PagedResult(voList, total, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "列表查询失败: ")
 }
 
+// TypeDelete 删除工作流模板(类型)
+// 如果已被使用则无法删除
 func (r *WorkflowService) TypeDelete(id uint) error {
 	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
-	_, err := workflowTypeRepo.Get(id)
+	workflowRepo := data.NewWorkflowRepo(r.Db, r.ctx)
+
+	// 获取工作流模板(类型)已使用的数量
+	used, usedErr := workflowRepo.GetTypeUsedQuantity(id)
+	if usedErr != nil {
+		return db.FirstQueryErrorHandle(usedErr, response.WorkflowTypeUsedQueryFail)
+	}
+
+	if used > 0 {
+		return exception.NewException(response.WorkflowTypeDeleteFailByUsed)
+	}
+
+	detail, err := workflowTypeRepo.Get(id)
 	if err != nil {
 		return db.FirstQueryErrorHandle(err, response.WorkflowTypeNotExist)
+	}
+
+	// 系统内置的模板不允许删除
+	if detail.System == 1 {
+		return exception.NewException(response.WorkflowTypeDeleteFailBySystem)
 	}
 
 	return exception.ErrorHandle(workflowTypeRepo.Delete(id), response.WorkflowTypeDeleteFail)

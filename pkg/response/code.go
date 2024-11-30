@@ -95,6 +95,9 @@ const (
 	WorkflowEngineSaveLogFail            = 6110 // 工作流日志记录失败失败
 	WorkflowEngineSaveAdditionalDataFail = 6111 // 工作流附加数据保存失败
 	WorkflowTypeOnlyNameIllegal          = 6112 // 工作流类型唯一标志非法
+	WorkflowTypeDeleteFailByUsed         = 6113 // 工作流模板(类型)已被使用，无法删除
+	WorkflowTypeUsedQueryFail            = 6114 // 工作流模板(类型)已使用数量查询失败
+	WorkflowTypeDeleteFailBySystem       = 6115 // 工作流模板(类型)为系统内置，无法删除
 
 	TimeParseFail            = 9000 // 时间解析失败
 	ElementQuantityTooLittle = 9001 // 元素数量太少
@@ -199,6 +202,9 @@ var codeMap = map[int]string{
 	WorkflowEngineSaveLogFail:            "工作流日志记录失败",
 	WorkflowEngineSaveAdditionalDataFail: "工作流附加数据保存失败",
 	WorkflowTypeOnlyNameIllegal:          "工作流类型唯一标志非法",
+	WorkflowTypeDeleteFailByUsed:         "工作流类型(模板)已被使用，无法删除",
+	WorkflowTypeUsedQueryFail:            "工作流模板(类型)已使用数量查询失败",
+	WorkflowTypeDeleteFailBySystem:       "工作流模板(类型)为系统内置，无法删除",
 
 	TimeParseFail:            "时间解析失败",
 	ElementQuantityTooLittle: "元素数量太少",
