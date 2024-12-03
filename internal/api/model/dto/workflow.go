@@ -105,3 +105,8 @@ type WorkflowLogQueryBo struct {
 	Operator   []uint64 `json:"operator,omitempty"`
 	CreateTime []int64  `json:"create_time,omitempty"`
 }
+
+type WorkflowNodeSaveCirculationDto struct {
+	TypeId      uint            `json:"type_id,omitempty" binding:"required"` // 工作流类型ID
+	Circulation map[uint][]uint `json:"circulation" binding:"required,gt=0"`  // 节点流转配置 key:节点ID value: []节点ID切片
+}

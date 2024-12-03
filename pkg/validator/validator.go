@@ -47,9 +47,12 @@ var formVerificationFailed = map[string]string{
 	"ChangeSuperDto.Super.max":      "超级用户数值应该是1或2",
 
 	// 工作流
-	"WorkflowNodeQueryDto.TypeId.required": "缺少工作流类型查询项",
-	"WorkflowNodeDto.TypeId.required":      "请选择工作流类型",
-	"WorkflowNodeDto.Name.required":        "请填写工作流节点名称",
+	"WorkflowNodeQueryDto.TypeId.required":                "缺少工作流类型查询项",
+	"WorkflowNodeDto.TypeId.required":                     "请选择工作流类型",
+	"WorkflowNodeDto.Name.required":                       "请填写工作流节点名称",
+	"WorkflowNodeSaveCirculationDto.TypeId.required":      "缺少工作流类型",
+	"WorkflowNodeSaveCirculationDto.Circulation.required": "缺少节点流转配置",
+	"WorkflowNodeSaveCirculationDto.Circulation.gt":       "节点流转配置不能为空",
 
 	// 其它
 	"SingleUintRequired.ID.required": "缺少ID参数",

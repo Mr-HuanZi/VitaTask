@@ -14,7 +14,8 @@ type WorkflowNode struct {
 	Action      string `json:"action"`
 	ActionValue string `json:"action_value"`
 	Everyone    int    `json:"everyone"`
-	Schema      string `json:"schema"` // 节点表单设计数据
+	Schema      string `json:"schema"`      // 节点表单设计数据
+	Circulation string `json:"circulation"` // 节点流转配置，存其它节点ID，英文逗号分隔
 }
 
 func (receiver *WorkflowNode) TableName() string {

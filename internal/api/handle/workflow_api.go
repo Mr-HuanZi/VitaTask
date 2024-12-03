@@ -318,6 +318,20 @@ func (r WorkflowApi) NodeGetSchema(ctx *gin.Context) {
 	)
 }
 
+// NodeSaveCirculation 保存节点表单配置
+func (r WorkflowApi) NodeSaveCirculation(ctx *gin.Context) {
+	var post dto.WorkflowNodeSaveCirculationDto
+	if err := ctx.ShouldBindJSON(&post); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(nil, service.NewWorkflowService(db.Db, ctx).NodeSaveCirculation(post)),
+	)
+}
+
 func (r WorkflowApi) Actions(ctx *gin.Context) {
 	ctx.JSON(
 		http.StatusOK,

@@ -15,9 +15,11 @@ import (
 	"errors"
 	"github.com/duke-git/lancet/v2/convertor"
 	"github.com/duke-git/lancet/v2/slice"
+	"github.com/duke-git/lancet/v2/strutil"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -477,7 +479,14 @@ func (r *WorkflowService) NodeAdd(post dto.WorkflowNodeDto) (*repo.WorkflowNode,
 		ActionValue: post.ActionValue,
 	}
 	createErr := workflowNodeRepo.Create(saveData)
-	return nil, exception.ErrorHandle(createErr, response.WorkflowNodeCreateFail)
+	if createErr != nil {
+		return nil, exception.ErrorHandle(createErr, response.WorkflowNodeCreateFail)
+	}
+
+	// 保存节点流转配置
+	// 默认可流转到本身，所以这里要先把数据创建，拿到ID
+	updateErr := workflowNodeRepo.UpdateField(saveData.ID, "circulation", saveData.ID)
+	return saveData, exception.ErrorHandle(updateErr, response.WorkflowNodeCreateFail)
 }
 
 func (r *WorkflowService) NodeUpdate(post dto.WorkflowNodeDto) (*repo.WorkflowNode, error) {
@@ -558,6 +567,11 @@ func (r *WorkflowService) NodeTypeAll(id uint) ([]vo.WorkflowNodeVo, error) {
 	// 获取该节点的审批动作
 	allActions := workflow.GetAllActionName()
 
+	// 将NodeId作为Key生成新的Map
+	nodeMap := slice.KeyBy(workflowNodes, func(item repo.WorkflowNode) uint {
+		return item.ID
+	})
+
 	voList := make([]vo.WorkflowNodeVo, len(workflowNodes))
 
 	for i, node := range workflowNodes {
@@ -574,6 +588,28 @@ func (r *WorkflowService) NodeTypeAll(id uint) ([]vo.WorkflowNodeVo, error) {
 			nodeVo.ActionOption = &vo.OptionItem[string]{
 				Label: v,
 				Value: node.Action,
+			}
+		}
+
+		// 获取节点流转配置
+		if len(node.Circulation) > 0 {
+			// 按英文逗号拆分字符串
+			circulationList := strutil.SplitAndTrim(node.Circulation, ",")
+			if len(circulationList) > 0 {
+				// 初始化切片
+				nodeVo.Circulation = make([]vo.WorkflowNodeVo, len(circulationList))
+				for i2, s := range circulationList {
+					// 把 s 转成 unit
+					nodeId, _ := strconv.ParseUint(s, 10, 32)
+					if cv, cvOk := nodeMap[uint(nodeId)]; cvOk {
+						nodeVo.Circulation[i2].ID = cv.ID
+						nodeVo.Circulation[i2].Node = cv.Node
+						nodeVo.Circulation[i2].Name = cv.Name
+						nodeVo.Circulation[i2].Action = cv.Action
+						nodeVo.Circulation[i2].ActionValue = cv.ActionValue
+						nodeVo.Circulation[i2].Everyone = cv.Everyone
+					}
+				}
 			}
 		}
 
@@ -624,6 +660,61 @@ func (r *WorkflowService) NodeSaveSchema(post dto.WorkflowNodeSaveFormDto) error
 	// 保存数据
 	err = workflowNodeRepo.UpdateField(nodeData.ID, "schema", post.Schema)
 	return exception.ErrorHandle(err, response.WorkflowTypeUpdateFail)
+}
+
+// NodeSaveCirculation 保存节点流转配置
+func (r *WorkflowService) NodeSaveCirculation(post dto.WorkflowNodeSaveCirculationDto) error {
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
+	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
+
+	// 获取工作流模板
+	one, err := workflowTypeRepo.Get(post.TypeId)
+	if err != nil {
+		return db.FirstQueryErrorHandle(err, response.WorkflowTypeNotExist)
+	}
+
+	// 获取该工作流类型的所有节点配置
+	workflowNodes, nodeErr := workflowNodeRepo.GetTypeAll(one.ID)
+	if nodeErr != nil {
+		return exception.ErrorHandle(nodeErr, response.DbQueryError, "查询节点失败: ")
+	}
+
+	// 启动事务
+	err = r.Db.Transaction(func(tx *gorm.DB) error {
+		defer func() {
+			// 还原所有Repo的Orm实例
+			workflowNodeRepo.SetDbInstance(r.Db)
+		}()
+
+		workflowNodeRepo.SetDbInstance(tx)
+
+		for _, node := range workflowNodes {
+			circulationStr := ""
+			// 如果当前节点ID不是这个工作流模板的，就清空配置
+			selected, ok := post.Circulation[node.ID]
+			if !ok {
+				circulationStr = strconv.Itoa(int(node.ID)) // 默认可流转到当前节点
+			} else {
+				// 判断selected中是否有当前节点，如果没有就加上
+				if !slice.Contain(selected, node.ID) {
+					selected = append(selected, node.ID)
+				}
+				// 排个序
+				slice.Sort(selected)
+				circulationStr = slice.Join(selected, ",")
+			}
+
+			// 保存数据
+			saveErr := workflowNodeRepo.UpdateField(node.ID, "circulation", circulationStr)
+			if saveErr != nil {
+				return saveErr
+			}
+		}
+
+		return nil
+	})
+
+	return exception.ErrorHandle(err, response.DbExecuteError, "保存配置失败: ")
 }
 
 // NodeGetSchema 获取节点表单配置

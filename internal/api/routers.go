@@ -153,9 +153,10 @@ func Routers(r *gin.Engine) {
 			twoG.POST("delete", workflowApi.NodeDelete)
 			twoG.POST("actions", workflowApi.Actions)
 			twoG.POST("type_all", workflowApi.NodeTypeAll)
-			twoG.POST("first", workflowApi.NodeFirst)            // 获取第一个节点
-			twoG.POST("save_schema", workflowApi.NodeSaveSchema) // 保存节点表单配置
-			twoG.POST("get_schema", workflowApi.NodeGetSchema)   // 获取节点表单配置
+			twoG.POST("first", workflowApi.NodeFirst)                      // 获取第一个节点
+			twoG.POST("save_schema", workflowApi.NodeSaveSchema)           // 保存节点表单配置
+			twoG.POST("get_schema", workflowApi.NodeGetSchema)             // 获取节点表单配置
+			twoG.POST("save_circulation", workflowApi.NodeSaveCirculation) // 保存节点流转配置
 		}
 
 		{
