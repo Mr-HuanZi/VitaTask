@@ -470,6 +470,11 @@ func (r *WorkflowService) NodeAdd(post dto.WorkflowNodeDto) (*repo.WorkflowNode,
 		post.Node = 1
 	}
 
+	// 是否为结束节点 1-是
+	if post.End > 1 {
+		post.End = 1
+	}
+
 	// 创建新对象
 	saveData := &repo.WorkflowNode{
 		TypeId:      typeData.ID,
@@ -477,6 +482,7 @@ func (r *WorkflowService) NodeAdd(post dto.WorkflowNodeDto) (*repo.WorkflowNode,
 		Name:        post.Name,
 		Action:      post.Action,
 		ActionValue: post.ActionValue,
+		End:         post.End,
 	}
 	createErr := workflowNodeRepo.Create(saveData)
 	if createErr != nil {
@@ -503,12 +509,18 @@ func (r *WorkflowService) NodeUpdate(post dto.WorkflowNodeDto) (*repo.WorkflowNo
 		post.Node = nodeData.Node
 	}
 
+	// 是否为结束节点 1-是
+	if post.End > 1 {
+		post.End = 1
+	}
+
 	// 修改数据
 	// 不允许修改 TypeId
 	nodeData.Name = post.Name
 	nodeData.Node = post.Node
 	nodeData.Action = post.Action
 	nodeData.ActionValue = post.ActionValue
+	nodeData.End = post.End
 
 	saveErr := workflowNodeRepo.Save(nodeData)
 	return nil, exception.ErrorHandle(saveErr, response.WorkflowNodeUpdateFail)
@@ -583,6 +595,7 @@ func (r *WorkflowService) NodeTypeAll(id uint) ([]vo.WorkflowNodeVo, error) {
 		nodeVo.Action = node.Action
 		nodeVo.ActionValue = node.ActionValue
 		nodeVo.Everyone = node.Everyone
+		nodeVo.End = node.End
 
 		if v, ok := allActions[node.Action]; ok {
 			nodeVo.ActionOption = &vo.OptionItem[string]{
@@ -608,6 +621,7 @@ func (r *WorkflowService) NodeTypeAll(id uint) ([]vo.WorkflowNodeVo, error) {
 						nodeVo.Circulation[i2].Action = cv.Action
 						nodeVo.Circulation[i2].ActionValue = cv.ActionValue
 						nodeVo.Circulation[i2].Everyone = cv.Everyone
+						nodeVo.Circulation[i2].End = cv.End
 					}
 				}
 			}

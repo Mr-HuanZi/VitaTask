@@ -18,6 +18,7 @@ type WorkflowNodeVo struct {
 	ActionOption *OptionItem[string] `json:"action_option"`
 	Everyone     int                 `json:"everyone"`
 	Circulation  []WorkflowNodeVo    `json:"circulation"`
+	End          uint8               `json:"end"`
 }
 
 type WorkflowLogVo struct {

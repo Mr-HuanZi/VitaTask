@@ -40,11 +40,12 @@ type WorkflowTypeQueryBo struct {
 
 type WorkflowNodeDto struct {
 	UintId
-	TypeId      uint   `json:"type_id,uint,omitempty" binding:"required"` // 工作流类型ID
-	Node        int    `json:"node,int,omitempty"`                        // 节点序号
+	TypeId      uint   `json:"type_id,uint,omitempty" binding:"required"`  // 工作流类型ID
+	Node        int    `json:"node,int,omitempty" binding:"min=0,max=999"` // 节点序号
 	Name        string `json:"name" binding:"required"`
 	Action      string `json:"action"`
 	ActionValue string `json:"action_value"`
+	End         uint8  `json:"end" binding:"oneof=0 1"` // 是否为结束节点 1-是
 }
 
 type WorkflowNodeQueryDto struct {

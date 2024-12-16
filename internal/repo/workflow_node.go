@@ -16,6 +16,7 @@ type WorkflowNode struct {
 	Everyone    int    `json:"everyone"`
 	Schema      string `json:"schema"`      // 节点表单设计数据
 	Circulation string `json:"circulation"` // 节点流转配置，存其它节点ID，英文逗号分隔
+	End         uint8  `json:"end"`         // 是否为结束节点 1-是
 }
 
 func (receiver *WorkflowNode) TableName() string {
