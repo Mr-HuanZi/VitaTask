@@ -279,10 +279,11 @@ func (r *WorkflowService) TypeAdd(post dto.WorkflowTypeDto) (*repo.WorkflowType,
 
 	// 创建新对象
 	newData := &repo.WorkflowType{
-		Name:       post.Name,
-		OrgId:      post.OrgId,
-		OnlyName:   post.OnlyName,
-		Illustrate: post.Illustrate,
+		Name:            post.Name,
+		OrgId:           post.OrgId,
+		OnlyName:        post.OnlyName,
+		Illustrate:      post.Illustrate,
+		CirculationMode: post.CirculationMode,
 	}
 
 	// 自动创建一个新的节点
@@ -327,6 +328,7 @@ func (r *WorkflowService) TypeUpdate(post dto.WorkflowTypeDto) (*repo.WorkflowTy
 	one.Name = post.Name
 	one.OrgId = post.OrgId
 	one.Illustrate = post.Illustrate
+	one.CirculationMode = post.CirculationMode
 
 	saveErr := workflowTypeRepo.Save(one)
 	return one, exception.ErrorHandle(saveErr, response.WorkflowTypeUpdateFail)

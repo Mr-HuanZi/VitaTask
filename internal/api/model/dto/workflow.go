@@ -19,6 +19,8 @@ type WorkflowTypeDto struct {
 	OrgId      uint   `json:"org_id,omitempty"`
 	OnlyName   string `json:"only_name,omitempty"`
 	System     bool   `json:"system"`
+	// 流转模式 1-顺序流转 2-自由流转
+	CirculationMode int8 `json:"circulation_mode,omitempty" binding:"required"`
 }
 
 type WorkflowTypeQueryDto struct {

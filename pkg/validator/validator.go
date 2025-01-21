@@ -1,6 +1,9 @@
 package validator
 
 import (
+	"encoding/json"
+	"errors"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
@@ -63,6 +66,31 @@ var formVerificationFailed = map[string]string{
 
 // FailHandle 表单验证失败字符串处理
 func FailHandle(err error) string {
+	// validator.ValidationErrors 是一个切片，不是真正的error，
+	// 所以errors.Is和errors.As无法判断，只能用断言
+	if validationErrors, ok := err.(validator.ValidationErrors); ok {
+		for _, fieldError := range validationErrors {
+			// 只要第一个错误信息就行
+			// example: []string{"WorkflowTypeDto.CirculationMode", "required"}
+			return GetMapValue(strings.Join([]string{fieldError.Namespace(), fieldError.Tag()}, "."))
+		}
+	}
+
+	var validatorInvalidValidationError *validator.InvalidValidationError
+	if errors.As(err, &validatorInvalidValidationError) {
+		logrus.Warnln("validator InvalidValidationError", err)
+		return "参数校验失败，输入参数错误"
+	}
+
+	var jsonUnmarshalTypeError *json.UnmarshalTypeError
+	if errors.As(err, &jsonUnmarshalTypeError) {
+		logrus.Errorln("json.UnmarshalTypeError", err)
+		return "数据解析出错，请检查数据类型是否正确"
+	}
+
+	// 如果不符合以上的错误类型，就当作普通字符串处理
+	// 不过上面校验了 validator.ValidationErrors 后，这里应该也不会去执行它了
+	// 姑且认为是废弃吧，但是先保留 [Mr.Huan 2024-12-24 01:20]
 	s := err.Error()
 	// 记录日志
 	logrus.Warnln("validator fail", s)

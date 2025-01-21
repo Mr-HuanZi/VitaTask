@@ -16,6 +16,8 @@ type WorkflowType struct {
 	OnlyName string `json:"only_name,omitempty"`
 	// 系统内置工作流类型(不允许前端修改) 1-是 0-否
 	System int8 `json:"system,omitempty"`
+	// 流转模式 1-顺序流转 2-自由流转
+	CirculationMode int8 `json:"circulation_mode,omitempty"`
 }
 
 func (receiver *WorkflowType) TableName() string {
