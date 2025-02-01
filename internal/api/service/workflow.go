@@ -386,6 +386,7 @@ func (r *WorkflowService) TypeList(query dto.WorkflowTypeQueryDto) (*dto.PagedRe
 		voList[i].CreateTime = v.CreateTime
 		voList[i].UsedQuantity = usedQuantity[v.ID]
 		voList[i].System = v.System
+		voList[i].CirculationMode = v.CirculationMode
 	}
 
 	return pkg.PagedResult(voList, total, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "列表查询失败: ")

@@ -60,4 +60,6 @@ type WorkflowListVo struct {
 	// 系统内置工作流类型(不允许前端修改) 1-是 0-否
 	System       int8  `json:"system,omitempty"`
 	UsedQuantity int64 `json:"used_quantity"`
+	// 流转模式 1-顺序流转 2-自由流转
+	CirculationMode int8 `json:"circulation_mode,omitempty" binding:"required"`
 }
