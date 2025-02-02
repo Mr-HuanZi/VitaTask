@@ -24,15 +24,6 @@ type MySQLConfig struct {
 	Prefix   string `yaml:"prefix"`
 }
 
-type MongoConfig struct {
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	DbName   string `yaml:"dbname"`
-	Prefix   string `yaml:"prefix"`
-}
-
 type RedisConfig struct {
 	Host string `yaml:"host"`
 	Port int    `yaml:"port"`
@@ -57,7 +48,6 @@ type GatewayConfig struct {
 type Config struct {
 	Jwt     JwtConfig     `yaml:"jwt"`
 	Mysql   MySQLConfig   `yaml:"mysql"`
-	Mongo   MongoConfig   `yaml:"mongo"`
 	Redis   RedisConfig   `yaml:"redis"`
 	App     AppConfig     `yaml:"app"`
 	Member  MemberConfig  `yaml:"member"`
@@ -78,14 +68,6 @@ func NewConfig() *Config {
 			Port:     3306,
 			DbName:   "",
 			Prefix:   "",
-		},
-		Mongo: MongoConfig{
-			Username: "root",
-			Password: "root",
-			Host:     "localhost",
-			Port:     27017,
-			DbName:   "vita_task",
-			Prefix:   "", // 暂不支持表前缀
 		},
 		Redis: RedisConfig{
 			Host: "localhost",

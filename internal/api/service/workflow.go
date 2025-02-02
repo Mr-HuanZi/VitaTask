@@ -195,7 +195,7 @@ func (r *WorkflowService) PageList(query dto.WorkflowListQueryDto, queryExp repo
 	return pkg.PagedResult(l, total, int64(query.Page)), exception.ErrorHandle(err, response.DbQueryError, "列表查询失败: ")
 }
 
-// Detail 工作流详情
+// Detail 工作流实例明细
 func (r *WorkflowService) Detail(id uint) (*vo.WorkflowDetailVo, error) {
 	// 实例化VO
 	workflowDetailVo := new(vo.WorkflowDetailVo)
@@ -204,6 +204,7 @@ func (r *WorkflowService) Detail(id uint) (*vo.WorkflowDetailVo, error) {
 	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
 	workflowOperatorRepo := data.NewWorkflowOperatorRepo(r.Db, r.ctx)
 	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
+	workflowDataRepo := data.NewWorkflowDataRepo(r.Db, r.ctx)
 
 	// 查询工作流详情
 	workflowInfo, err := workflowRepo.Get(id)
@@ -240,6 +241,7 @@ func (r *WorkflowService) Detail(id uint) (*vo.WorkflowDetailVo, error) {
 		workflowDetailVo.Node.Action = node.Action
 		workflowDetailVo.Node.ActionValue = node.ActionValue
 		workflowDetailVo.Node.Everyone = node.Everyone
+		workflowDetailVo.Node.Schema = node.Schema
 	}
 
 	// 查询当前节点操作人
@@ -253,6 +255,21 @@ func (r *WorkflowService) Detail(id uint) (*vo.WorkflowDetailVo, error) {
 		}
 	} else {
 		workflowDetailVo.Operators = operators
+	}
+
+	// 获取附加数据
+	workflowDataList, workflowDataErr := workflowDataRepo.AllData(id)
+	if workflowDataErr != nil {
+		return nil, exception.ErrorHandle(workflowDataErr, response.DbQueryError, "查询附加数据失败: ")
+	}
+	workflowDetailVo.WorkflowData = make([]vo.WorkflowDataItemVo, len(workflowDataList))
+	for i, item := range workflowDataList {
+		// 节点
+		workflowDetailVo.WorkflowData[i] = vo.WorkflowDataItemVo{
+			ID:     item.ID,
+			NodeId: item.NodeId,
+			Data:   item.Data,
+		}
 	}
 
 	return workflowDetailVo, nil
@@ -892,4 +909,61 @@ func (r *WorkflowService) Footprint(id uint) ([]vo.WorkflowFootprintVo, error) {
 	}
 
 	return footprintVo, nil
+}
+
+func (r *WorkflowService) NewWorkflow(onlyName string) (*vo.NewWorkflowVo, error) {
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
+	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
+
+	// TypeDetailByOnlyName 获取工作流类型详情
+	one, err := workflowTypeRepo.GetByOnlyName(onlyName)
+	if err != nil {
+		return nil, exception.ErrorHandle(err, response.WorkflowTypeNotExist)
+	}
+	// 获取该工作流第一个节点
+	firstNode, nodeErr := workflowNodeRepo.FirstNode(one.ID)
+	if nodeErr != nil || firstNode == nil {
+		return nil, exception.ErrorHandle(nodeErr, response.WorkflowEngineNoFirstNodeSet)
+	}
+
+	// 获取该工作流类型的所有节点配置
+	workflowNodes, allNodeErr := workflowNodeRepo.GetTypeAll(one.ID)
+	if allNodeErr != nil {
+		return nil, exception.ErrorHandle(nodeErr, response.DbQueryError, "查询节点失败: ")
+	}
+	// 将NodeId作为Key生成新的Map
+	nodeMap := slice.KeyBy(workflowNodes, func(item repo.WorkflowNode) uint {
+		return item.ID
+	})
+
+	// 初始化VO
+	wVo := new(vo.NewWorkflowVo)
+	wVo.ID = one.ID
+	wVo.Name = one.Name
+	wVo.OnlyName = one.OnlyName
+	wVo.System = one.System
+	wVo.CirculationMode = one.CirculationMode
+	wVo.FirstNodeID = firstNode.ID
+	wVo.FirstNodeName = firstNode.Name
+	wVo.FirstNodeSchema = firstNode.Schema
+
+	// 获取节点流转配置
+	if len(firstNode.Circulation) > 0 {
+		// 按英文逗号拆分字符串
+		circulationList := strutil.SplitAndTrim(firstNode.Circulation, ",")
+		if len(circulationList) > 0 {
+			// 初始化切片
+			wVo.Circulation = make([]vo.WorkflowNodeVo, len(circulationList))
+			for i2, s := range circulationList {
+				// 把 s 转成 unit
+				nodeId, _ := strconv.ParseUint(s, 10, 32)
+				if cv, cvOk := nodeMap[uint(nodeId)]; cvOk {
+					wVo.Circulation[i2].ID = cv.ID
+					wVo.Circulation[i2].Node = cv.Node
+					wVo.Circulation[i2].Name = cv.Name
+				}
+			}
+		}
+	}
+	return wVo, db.FirstQueryErrorHandle(err, response.WorkflowTypeNotExist)
 }

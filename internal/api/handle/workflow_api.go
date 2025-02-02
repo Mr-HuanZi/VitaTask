@@ -97,13 +97,14 @@ func (r WorkflowApi) List(ctx *gin.Context) {
 	)
 }
 
+// Detail 工作流实例明细
 func (r WorkflowApi) Detail(ctx *gin.Context) {
 	id := ctx.Query("id")
 
 	// 转换成uint
 	idConv, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusOK, response.Custom("缺少工作流ID参数", response.FormVerificationFailed, nil))
+		ctx.JSON(http.StatusOK, response.Custom("缺少工作流实例ID参数", response.FormVerificationFailed, nil))
 		return
 	}
 
@@ -370,5 +371,21 @@ func (r WorkflowApi) Footprint(ctx *gin.Context) {
 	ctx.JSON(
 		http.StatusOK,
 		response.Auto(service.NewWorkflowService(db.Db, ctx).Footprint(post.ID)),
+	)
+}
+
+// NewWorkflow 创建新的工作流
+// 根据工作流唯一标识获取工作流模板信息并返回给前端
+// 再由前端请求另外的接口创建工作流实例
+func (r WorkflowApi) NewWorkflow(ctx *gin.Context) {
+	var post dto.SingleStringRequired
+	if err := ctx.ShouldBindJSON(&post); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(service.NewWorkflowService(db.Db, ctx).NewWorkflow(post.ID)),
 	)
 }

@@ -131,6 +131,7 @@ func Routers(r *gin.Engine) {
 		g.POST("list", workflowApi.List)
 		g.GET("status/list", workflowApi.StatusList)
 		g.POST("detail", workflowApi.Detail)
+		g.POST("new_workflow", workflowApi.NewWorkflow)
 
 		{
 			// 工作流模板接口

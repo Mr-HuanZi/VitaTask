@@ -58,20 +58,4 @@ func initDatabases() {
 	if err != nil {
 		panic("Database connection failed: " + err.Error())
 	}
-
-	// 连接MongoDB
-	client, MongoErr := db.NewMongoDBClient(db.DsnConfig{
-		Host:   config.Get().Mongo.Host,
-		Port:   config.Get().Mongo.Port,
-		User:   config.Get().Mongo.Username,
-		Pass:   config.Get().Mongo.Password,
-		Dbname: config.Get().Mongo.DbName,
-		Prefix: config.Get().Mongo.Prefix,
-	})
-
-	if MongoErr != nil {
-		panic("MongoDb connection failed: " + MongoErr.Error())
-	}
-
-	db.MongoClient = client
 }

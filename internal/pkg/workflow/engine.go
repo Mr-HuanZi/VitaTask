@@ -7,6 +7,7 @@ import (
 	"VitaTaskGo/pkg/db"
 	"VitaTaskGo/pkg/exception"
 	"VitaTaskGo/pkg/response"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/duke-git/lancet/v2/convertor"
@@ -16,8 +17,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-module/carbon/v2"
 	"github.com/valyala/fastjson"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 	"strconv"
 )
@@ -46,6 +45,7 @@ type EngineRepo struct {
 	workflowOperatorRepo repo.WorkflowOperatorRepo
 	workflowNodeRepo     repo.WorkflowNodeRepo
 	workflowLogRepo      repo.WorkflowLogRepo
+	workflowDataRepo     repo.WorkflowDataRepo
 }
 
 // Open 打开一个工作流
@@ -55,6 +55,7 @@ func Open(tx *gorm.DB, ctx *gin.Context, workflowId uint) (*Engine, error) {
 	workflowOperatorRepo := data.NewWorkflowOperatorRepo(tx, ctx)
 	workflowNodeRepo := data.NewWorkflowNodeRepo(tx, ctx)
 	workflowLogRepo := data.NewWorkflowLogRepo(tx, ctx)
+	workflowDataRepo := data.NewWorkflowDataRepo(tx, ctx)
 	// 查询工作流信息
 	workflow, err := workflowRepo.Get(workflowId)
 	if err != nil {
@@ -101,6 +102,7 @@ func Open(tx *gorm.DB, ctx *gin.Context, workflowId uint) (*Engine, error) {
 			workflowOperatorRepo: workflowOperatorRepo,
 			workflowNodeRepo:     workflowNodeRepo,
 			workflowLogRepo:      workflowLogRepo,
+			workflowDataRepo:     workflowDataRepo,
 		},
 		initialized: true,
 		formData:    make(map[string]interface{}),
@@ -115,6 +117,7 @@ func Create(tx *gorm.DB, ctx *gin.Context, typeId uint) (*Engine, error) {
 	workflowOperatorRepo := data.NewWorkflowOperatorRepo(tx, ctx)
 	workflowNodeRepo := data.NewWorkflowNodeRepo(tx, ctx)
 	workflowLogRepo := data.NewWorkflowLogRepo(tx, ctx)
+	workflowDataRepo := data.NewWorkflowDataRepo(tx, ctx)
 	// 查询工作流模板数据
 	typeData, err := workflowTypeRepo.Get(typeId)
 	if err != nil {
@@ -144,6 +147,7 @@ func Create(tx *gorm.DB, ctx *gin.Context, typeId uint) (*Engine, error) {
 			workflowOperatorRepo: workflowOperatorRepo,
 			workflowNodeRepo:     workflowNodeRepo,
 			workflowLogRepo:      workflowLogRepo,
+			workflowDataRepo:     workflowDataRepo,
 		},
 		initialized: true,
 		formData:    make(map[string]interface{}),
@@ -181,6 +185,7 @@ func (engine *Engine) Initiate() error {
 			engine.Repo.workflowOperatorRepo.SetDbInstance(engine.Orm)
 			engine.Repo.workflowTypeRepo.SetDbInstance(engine.Orm)
 			engine.Repo.workflowLogRepo.SetDbInstance(engine.Orm)
+			engine.Repo.workflowDataRepo.SetDbInstance(engine.Orm)
 		}()
 
 		// 给所有Repo设置新的Orm实例
@@ -189,6 +194,7 @@ func (engine *Engine) Initiate() error {
 		engine.Repo.workflowOperatorRepo.SetDbInstance(tx)
 		engine.Repo.workflowTypeRepo.SetDbInstance(tx)
 		engine.Repo.workflowLogRepo.SetDbInstance(tx)
+		engine.Repo.workflowDataRepo.SetDbInstance(tx)
 
 		// 生成序列号
 		serials, err := engine.GenerateSerials()
@@ -261,7 +267,7 @@ func (engine *Engine) Initiate() error {
 		}
 
 		// 尝试写入工作流附加数据
-		if dataInterface, ok := engine.formData["data"]; ok {
+		if dataInterface, ok := engine.formData["more_data"]; ok {
 			saveWorkflowDataErr := engine.SaveWorkflowData(dataInterface)
 			if saveWorkflowDataErr != nil {
 				return saveWorkflowDataErr
@@ -390,6 +396,7 @@ func (engine *Engine) ExamineApprove() error {
 			engine.Repo.workflowOperatorRepo.SetDbInstance(engine.Orm)
 			engine.Repo.workflowTypeRepo.SetDbInstance(engine.Orm)
 			engine.Repo.workflowLogRepo.SetDbInstance(engine.Orm)
+			engine.Repo.workflowDataRepo.SetDbInstance(engine.Orm)
 		}()
 
 		// 给所有Repo设置新的Orm实例
@@ -398,6 +405,7 @@ func (engine *Engine) ExamineApprove() error {
 		engine.Repo.workflowOperatorRepo.SetDbInstance(tx)
 		engine.Repo.workflowTypeRepo.SetDbInstance(tx)
 		engine.Repo.workflowLogRepo.SetDbInstance(tx)
+		engine.Repo.workflowDataRepo.SetDbInstance(tx)
 
 		// todo 执行钩子
 
@@ -455,7 +463,7 @@ func (engine *Engine) ExamineApprove() error {
 		}
 
 		// 尝试写入工作流附加数据
-		if dataInterface, ok := engine.formData["data"]; ok {
+		if dataInterface, ok := engine.formData["more_data"]; ok {
 			saveWorkflowDataErr := engine.SaveWorkflowData(dataInterface)
 			if saveWorkflowDataErr != nil {
 				return saveWorkflowDataErr
@@ -637,42 +645,39 @@ func (engine *Engine) GetWorkflowInfo() *repo.Workflow {
 }
 
 // SaveWorkflowData 保存工作流附加数据
-// todo 需要匹配用户工作流字段配置
 func (engine *Engine) SaveWorkflowData(v interface{}) error {
-	// 设置Mongo集合名称
-	collectionName := "workflow_data_" + engine.typeData.OnlyName
-	// 转换为 snake_case 形式, 非字母和数字会被忽略
-	collectionName = strutil.SnakeCase(collectionName)
-
-	if workflowData, ok := v.(map[string]interface{}); ok {
-		// 先查有没有保存过数据
-		findData := make(map[string]interface{})             // 保存结果数据的Map
-		filter := bson.D{{"workflow_id", engine.workflowId}} // 查询条件
-		findOneErr := db.MongoClient.FindOne(collectionName, filter, &findData)
-		if findOneErr != nil && !errors.Is(findOneErr, mongo.ErrNoDocuments) {
-			// 忽略结果为空的错误
-			return exception.NewException(response.DbQueryError, findOneErr)
+	if v == nil {
+		return nil
+	}
+	// 如果是空字符串，则不保存
+	if s, ok := v.(string); ok && s == "" {
+		return nil
+	}
+	// 尝试把参数转换成Json字符串
+	vStr, err := json.Marshal(v)
+	if err != nil {
+		return exception.NewException(response.WorkflowEngineSaveAdditionalDataFail)
+	}
+	// 当前节点是否保存过附加数据
+	hasData, err := engine.Repo.workflowDataRepo.FirstStringWhere("workflow_id = ? AND node_id = ?", engine.workflowId, engine.nodeInfo.ID)
+	if hasData == nil || err != nil {
+		// 没有数据，创建一份新的
+		newData := &repo.WorkflowData{
+			TypeId:     engine.typeId,
+			TypeName:   engine.typeData.Name,
+			NodeId:     engine.nodeInfo.ID,
+			WorkflowId: engine.workflowId,
+			Data:       string(vStr),
 		}
-
-		// 如果查到了就更新数据，否则就插入新数据
-		if len(findData) > 0 {
-			// 更新数据
-			updateData := bson.M{
-				"$set": workflowData,
-			}
-			// 更新
-			updateErr := db.MongoClient.UpdateOne(collectionName, filter, updateData)
-			if updateErr != nil {
-				return exception.NewException(response.WorkflowEngineSaveAdditionalDataFail, updateErr.Error())
-			}
-		} else {
-			// 添加工作流ID
-			workflowData["workflow_id"] = engine.workflowId
-			// 写入
-			err := db.MongoClient.InsertOne(collectionName, workflowData)
-			if err != nil {
-				return exception.NewException(response.WorkflowEngineSaveAdditionalDataFail, err)
-			}
+		createErr := engine.Repo.workflowDataRepo.Create(newData)
+		if createErr != nil {
+			return exception.NewException(response.WorkflowEngineSaveAdditionalDataFail)
+		}
+	} else {
+		// 已有数据，更新
+		err := engine.Repo.workflowDataRepo.UpdateField(hasData.ID, "data", string(vStr))
+		if err != nil {
+			return exception.NewException(response.WorkflowEngineSaveAdditionalDataFail)
 		}
 	}
 

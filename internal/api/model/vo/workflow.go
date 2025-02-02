@@ -7,6 +7,7 @@ type WorkflowDetailVo struct {
 	Node         *WorkflowNodeVo         `json:"node"`
 	Operators    []repo.WorkflowOperator `json:"operators"`
 	WorkflowType *repo.WorkflowType      `json:"workflow_type"`
+	WorkflowData []WorkflowDataItemVo    `json:"workflow_data"`
 }
 
 type WorkflowNodeVo struct {
@@ -19,6 +20,7 @@ type WorkflowNodeVo struct {
 	Everyone     int                 `json:"everyone"`
 	Circulation  []WorkflowNodeVo    `json:"circulation"`
 	End          uint8               `json:"end"`
+	Schema       string              `json:"schema"`
 }
 
 type WorkflowLogVo struct {
@@ -62,4 +64,24 @@ type WorkflowListVo struct {
 	UsedQuantity int64 `json:"used_quantity"`
 	// 流转模式 1-顺序流转 2-自由流转
 	CirculationMode int8 `json:"circulation_mode,omitempty" binding:"required"`
+}
+
+type NewWorkflowVo struct {
+	ID       uint   `json:"id"`
+	Name     string `json:"name"`
+	OnlyName string `json:"only_name"`
+	System   int8   `json:"system"`
+	// 流转模式 1-顺序流转 2-自由流转
+	CirculationMode int8   `json:"circulation_mode" binding:"required"`
+	FirstNodeID     uint   `json:"first_node_id"`
+	FirstNodeName   string `json:"first_node_name"`
+	FirstNodeSchema string `json:"first_node_schema"`
+	// 起始节点可流转到的节点
+	Circulation []WorkflowNodeVo `json:"circulation"`
+}
+
+type WorkflowDataItemVo struct {
+	ID     uint   `json:"id"`
+	NodeId uint   `json:"node_id"`
+	Data   string `json:"data"`
 }

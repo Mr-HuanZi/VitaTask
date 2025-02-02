@@ -75,18 +75,19 @@ type WorkflowNodeSaveFormDto struct {
 }
 
 type WorkflowInitiateDto struct {
-	TypeId  uint        `json:"type_id,omitempty"` // 工作流类型ID
-	Title   string      `json:"title"`
-	Data    interface{} `json:"data"` // 数据
-	Remarks string      `json:"remarks"`
+	TypeId   uint        `json:"type_id,omitempty"` // 工作流类型ID
+	Title    string      `json:"title"`
+	Data     interface{} `json:"data"` // 数据
+	Remarks  string      `json:"remarks"`
+	MoreData interface{} `json:"more_data"` // 额外的表单数据
 }
 
 type WorkflowExamineApproveDto struct {
-	Id      uint        `json:"id"`      // 工作流ID
-	Action  string      `json:"action"`  // 动作 作废 进行 驳回
-	Explain string      `json:"explain"` // 说明
-	Node    int         `json:"node"`    // 退回到哪个节点
-	Data    interface{} `json:"data"`    // 数据
+	Id       uint        `json:"id"`        // 工作流ID
+	Action   string      `json:"action"`    // 动作 作废 进行 驳回
+	Explain  string      `json:"explain"`   // 说明
+	Node     int         `json:"node"`      // 退回到哪个节点
+	MoreData interface{} `json:"more_data"` // 额外的表单数据
 }
 
 type WorkflowLogQueryDto struct {
