@@ -116,7 +116,7 @@ func (r *WorkflowTypeRepo) GetOptions(keyWords string, system bool) ([]repo.Work
 		tx.Where("system", 0)
 	}
 
-	err := tx.Select("id", "name").Order("system ASC").Order("create_time DESC").Find(&list).Error
+	err := tx.Select("id", "name").Order("`system` ASC").Order("`create_time` DESC").Find(&list).Error
 	return list, err
 }
 
