@@ -95,7 +95,7 @@ func (r *WorkflowTypeRepo) PageList(query dto.WorkflowTypeQueryBo) ([]repo.Workf
 
 	// 查询记录
 	err = tx.Scopes(db.Paginate(&query.Page, &query.PageSize)).
-		Order("system ASC").
+		Order("`system` ASC").
 		Order("create_time DESC").
 		Find(&list).Error
 
