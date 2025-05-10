@@ -273,7 +273,7 @@ func (r WorkflowApi) NodeTypeAll(ctx *gin.Context) {
 
 	ctx.JSON(
 		http.StatusOK,
-		response.Auto(service.NewWorkflowService(db.Db, ctx).NodeTypeAll(post.ID)),
+		response.Auto(service.NewWorkflowService(db.Db, ctx).NodeTypeAll(post.ID, true, false)),
 	)
 }
 

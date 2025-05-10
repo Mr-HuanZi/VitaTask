@@ -257,6 +257,13 @@ func (r *WorkflowService) Detail(id uint) (*vo.WorkflowDetailVo, error) {
 		workflowDetailVo.Operators = operators
 	}
 
+	// 获取所有节点
+	allNode, allNodeErr := r.NodeTypeAll(workflowInfo.TypeId, false, true)
+	if allNodeErr != nil {
+		return nil, allNodeErr
+	}
+	workflowDetailVo.AllNode = allNode
+
 	// 获取附加数据
 	workflowDataList, workflowDataErr := workflowDataRepo.AllData(id)
 	if workflowDataErr != nil {
@@ -589,7 +596,7 @@ func (r *WorkflowService) NodeList(query dto.WorkflowNodeQueryDto) (*dto.PagedRe
 }
 
 // NodeTypeAll 获取指定工作流模板的所有节点(无分页)
-func (r *WorkflowService) NodeTypeAll(id uint) ([]vo.WorkflowNodeVo, error) {
+func (r *WorkflowService) NodeTypeAll(id uint, needCirculation bool, needSchema bool) ([]vo.WorkflowNodeVo, error) {
 	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
 	// 获取该工作流类型的所有节点配置
 	workflowNodes, nodeErr := workflowNodeRepo.GetTypeAll(id)
@@ -616,6 +623,9 @@ func (r *WorkflowService) NodeTypeAll(id uint) ([]vo.WorkflowNodeVo, error) {
 		nodeVo.ActionValue = node.ActionValue
 		nodeVo.Everyone = node.Everyone
 		nodeVo.End = node.End
+		if needSchema {
+			nodeVo.Schema = node.Schema
+		}
 
 		if v, ok := allActions[node.Action]; ok {
 			nodeVo.ActionOption = &vo.OptionItem[string]{
@@ -625,7 +635,7 @@ func (r *WorkflowService) NodeTypeAll(id uint) ([]vo.WorkflowNodeVo, error) {
 		}
 
 		// 获取节点流转配置
-		if len(node.Circulation) > 0 {
+		if len(node.Circulation) > 0 && needCirculation {
 			// 按英文逗号拆分字符串
 			circulationList := strutil.SplitAndTrim(node.Circulation, ",")
 			if len(circulationList) > 0 {

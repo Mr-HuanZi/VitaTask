@@ -8,6 +8,7 @@ type WorkflowDetailVo struct {
 	Operators    []repo.WorkflowOperator `json:"operators"`
 	WorkflowType *repo.WorkflowType      `json:"workflow_type"`
 	WorkflowData []WorkflowDataItemVo    `json:"workflow_data"`
+	AllNode      []WorkflowNodeVo        `json:"all_node"`
 }
 
 type WorkflowNodeVo struct {
