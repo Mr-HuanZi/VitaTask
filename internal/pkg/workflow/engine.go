@@ -270,7 +270,7 @@ func (engine *Engine) Initiate() error {
 		if dataInterface, ok := engine.formData["more_data"]; ok {
 			saveWorkflowDataErr := engine.SaveWorkflowData(dataInterface)
 			if saveWorkflowDataErr != nil {
-				return saveWorkflowDataErr
+				return exception.NewMultipleException(response.WorkflowEngineSaveAdditionalDataFail).AddErr(saveWorkflowDataErr)
 			}
 		}
 
@@ -466,7 +466,7 @@ func (engine *Engine) ExamineApprove() error {
 		if dataInterface, ok := engine.formData["more_data"]; ok {
 			saveWorkflowDataErr := engine.SaveWorkflowData(dataInterface)
 			if saveWorkflowDataErr != nil {
-				return saveWorkflowDataErr
+				return exception.NewMultipleException(response.WorkflowEngineSaveAdditionalDataFail).AddErr(saveWorkflowDataErr)
 			}
 		}
 
@@ -656,7 +656,7 @@ func (engine *Engine) SaveWorkflowData(v interface{}) error {
 	// 尝试把参数转换成Json字符串
 	vStr, err := json.Marshal(v)
 	if err != nil {
-		return exception.NewException(response.WorkflowEngineSaveAdditionalDataFail)
+		return err
 	}
 	// 当前节点是否保存过附加数据
 	hasData, err := engine.Repo.workflowDataRepo.FirstStringWhere("workflow_id = ? AND node_id = ?", engine.workflowId, engine.nodeInfo.ID)
@@ -666,18 +666,20 @@ func (engine *Engine) SaveWorkflowData(v interface{}) error {
 			TypeId:     engine.typeId,
 			TypeName:   engine.typeData.Name,
 			NodeId:     engine.nodeInfo.ID,
+			Node:       engine.nodeInfo.Node,
 			WorkflowId: engine.workflowId,
 			Data:       string(vStr),
+			Schema:     engine.nodeInfo.Schema,
 		}
 		createErr := engine.Repo.workflowDataRepo.Create(newData)
 		if createErr != nil {
-			return exception.NewException(response.WorkflowEngineSaveAdditionalDataFail)
+			return createErr
 		}
 	} else {
 		// 已有数据，更新
-		err := engine.Repo.workflowDataRepo.UpdateField(hasData.ID, "data", string(vStr))
+		err := engine.Repo.workflowDataRepo.UpdateFields(hasData.ID, map[string]interface{}{"data": string(vStr), "schema": engine.nodeInfo.Schema})
 		if err != nil {
-			return exception.NewException(response.WorkflowEngineSaveAdditionalDataFail)
+			return err
 		}
 	}
 

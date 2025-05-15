@@ -14,6 +14,10 @@ func ErrorHandle(err error, code int, args ...string) error {
 			// 如果是自定义错误则直接返回
 			return e
 		}
+		//if e, ok := err.(*MultipleException); ok {
+		//	// 如果是自定义错误则直接返回
+		//	return e
+		//}
 		// 如果错误不为空，记录日志并且返回异常信息
 		logrus.Errorln(args, err)
 		return NewException(code)

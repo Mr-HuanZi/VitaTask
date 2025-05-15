@@ -12,7 +12,9 @@ type WorkflowData struct {
 	WorkflowId uint `json:"workflow_id"`
 	// 所属节点ID
 	NodeId uint   `json:"node_id"`
+	Node   int    `json:"node"` // 节点序号
 	Data   string `json:"data" gorm:"type:json"`
+	Schema string `json:"schema" gorm:"type:json"`
 }
 
 func (receiver *WorkflowData) TableName() string {

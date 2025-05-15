@@ -275,7 +275,9 @@ func (r *WorkflowService) Detail(id uint) (*vo.WorkflowDetailVo, error) {
 		workflowDetailVo.WorkflowData[i] = vo.WorkflowDataItemVo{
 			ID:     item.ID,
 			NodeId: item.NodeId,
+			Node:   item.Node,
 			Data:   item.Data,
+			Schema: item.Schema,
 		}
 	}
 

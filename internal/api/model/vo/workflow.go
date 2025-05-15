@@ -84,5 +84,7 @@ type NewWorkflowVo struct {
 type WorkflowDataItemVo struct {
 	ID     uint   `json:"id"`
 	NodeId uint   `json:"node_id"`
+	Node   int    `json:"node"`
 	Data   string `json:"data"`
+	Schema string `json:"schema"`
 }
