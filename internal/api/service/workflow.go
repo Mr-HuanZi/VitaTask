@@ -766,8 +766,11 @@ func (r *WorkflowService) NodeGetSchema(id uint) (string, error) {
 	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
 	// 获取节点记录
 	nodeData, err := workflowNodeRepo.Get(id)
+	if err != nil {
+		return "", db.FirstQueryErrorHandle(err, response.WorkflowNodeNotExist)
+	}
 	// 只返回表单配置数据
-	return nodeData.Schema, db.FirstQueryErrorHandle(err, response.WorkflowNodeNotExist)
+	return nodeData.Schema, nil
 }
 
 func (r *WorkflowService) Actions() []dto.UniversalSimpleList[string] {
