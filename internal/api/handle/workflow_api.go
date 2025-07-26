@@ -148,6 +148,22 @@ func (r WorkflowApi) TypeList(ctx *gin.Context) {
 		return
 	}
 
+	query.System = false
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(service.NewWorkflowService(db.Db, ctx).TypeList(query)),
+	)
+}
+
+// TypeOrdinaryList 工作流类型普通的列表，即不列出系统内置的工作流类型
+func (r WorkflowApi) TypeOrdinaryList(ctx *gin.Context) {
+	var query dto.WorkflowTypeQueryDto
+	if err := ctx.ShouldBindJSON(&query); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	query.System = true
 	ctx.JSON(
 		http.StatusOK,
 		response.Auto(service.NewWorkflowService(db.Db, ctx).TypeList(query)),

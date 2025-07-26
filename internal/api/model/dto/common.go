@@ -19,10 +19,14 @@ type UintId struct {
 	ID uint `json:"id,omitempty"`
 }
 
+// QueryParams 通用的查询条件组
 type QueryParams struct {
 	Name       string   `json:"name"`
 	Title      string   `json:"title"`
 	CreateTime []string `json:"create_time"`
+	Keyword    string   `json:"keyword"`
+	StartTime  string   `json:"start_time"`
+	EndTime    string   `json:"end_time"`
 }
 
 type DeletedQuery struct {

@@ -32,7 +32,7 @@ type WorkflowTypeRepo interface {
 	GetByOnlyName(onlyName string) (*WorkflowType, error)
 	UpdateField(id uint, field string, value interface{}) error
 	UpdateFields(id uint, values interface{}) error
-	PageList(query dto.WorkflowTypeQueryBo) ([]WorkflowType, int64, error)
+	PageList(query dto.WorkflowTypeQueryDto) ([]WorkflowType, int64, error)
 	GetOptions(keyWords string, system bool) ([]WorkflowType, error)
 	ExistByOnlyName(onlyName string) bool
 	GetNotSystemIds() ([]uint, error)

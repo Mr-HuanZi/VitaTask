@@ -54,7 +54,7 @@ func (r *WorkflowTypeRepo) UpdateFields(id uint, values interface{}) error {
 	return r.tx.Model(&repo.WorkflowType{}).Where("id = ?", id).Updates(values).Error
 }
 
-func (r *WorkflowTypeRepo) PageList(query dto.WorkflowTypeQueryBo) ([]repo.WorkflowType, int64, error) {
+func (r *WorkflowTypeRepo) PageList(query dto.WorkflowTypeQueryDto) ([]repo.WorkflowType, int64, error) {
 	var (
 		list  []repo.WorkflowType = nil
 		total int64
@@ -66,20 +66,21 @@ func (r *WorkflowTypeRepo) PageList(query dto.WorkflowTypeQueryBo) ([]repo.Workf
 		tx = tx.Where("id = ?", query.ID)
 	}
 
-	if len(query.CreateTime) >= 2 {
+	if len(query.TimeRange) >= 2 {
 		tx = tx.Where(
 			"create_time BETWEEN ? AND ?",
-			query.CreateTime[0],
-			query.CreateTime[1],
+			query.TimeRange[0],
+			query.TimeRange[1],
 		)
 	}
 
-	if len(query.Name) > 0 {
-		tx = tx.Where("name LIKE ?", "%"+query.Name+"%")
+	if len(query.Keyword) > 0 {
+		tx = tx.Where("(name LIKE ? OR only_name LIKE ?)", "%"+query.Keyword+"%", "%"+query.Keyword+"%")
 	}
 
-	if len(query.OnlyName) > 0 {
-		tx = tx.Where("only_name LIKE ?", "%"+query.OnlyName+"%")
+	// 只查询系统内置的
+	if query.System {
+		tx = tx.Where("system = ?", 1)
 	}
 
 	// 查询已删除的记录

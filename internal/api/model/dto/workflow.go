@@ -28,16 +28,8 @@ type WorkflowTypeQueryDto struct {
 	UintId
 	QueryParams
 	DeletedQuery
-	OnlyName string `json:"only_name,omitempty"`
-}
-
-type WorkflowTypeQueryBo struct {
-	PagingQuery
-	UintId
-	DeletedQuery
-	Name       string  `json:"name,omitempty"`
-	OnlyName   string  `json:"only_name,omitempty"`
-	CreateTime []int64 `json:"create_time,omitempty"`
+	System    bool    `json:"system"`
+	TimeRange []int64 `json:"time_range"`
 }
 
 type WorkflowNodeDto struct {

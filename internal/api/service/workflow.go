@@ -361,33 +361,23 @@ func (r *WorkflowService) TypeUpdate(post dto.WorkflowTypeDto) (*repo.WorkflowTy
 }
 
 func (r *WorkflowService) TypeList(query dto.WorkflowTypeQueryDto) (*dto.PagedResult[vo.WorkflowListVo], error) {
-	var (
-		queryBo dto.WorkflowTypeQueryBo
-	)
-
 	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
 	workflowRepo := data.NewWorkflowRepo(r.Db, r.ctx)
 
 	// 搜索处理
-	queryBo.UintId = query.UintId
-	queryBo.PagingQuery = query.PagingQuery
-	queryBo.DeletedQuery = query.DeletedQuery
-	queryBo.OnlyName = query.OnlyName
-	if len(query.Name) > 0 {
-		queryBo.Name = query.Name
-	} else if len(query.Title) > 0 {
-		queryBo.Name = query.Title
-	}
 	if len(query.CreateTime) >= 2 {
 		createTimeRange, err := time_tool.ParseStartEndTimeToUnix(query.CreateTime, time.DateOnly, "milli")
 		if err != nil {
 			return pkg.PagedResult[vo.WorkflowListVo](nil, 0, int64(query.Page)), exception.ErrorHandle(err, response.TimeParseFail)
 		}
 
-		queryBo.CreateTime = createTimeRange
+		query.TimeRange = createTimeRange
+		query.CreateTime = nil
+	} else {
+		query.CreateTime = nil
 	}
 
-	l, total, err := workflowTypeRepo.PageList(queryBo)
+	l, total, err := workflowTypeRepo.PageList(query)
 
 	// 获取每个工作流模板的使用数量
 	// 提取工作流模板ID
