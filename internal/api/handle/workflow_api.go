@@ -148,7 +148,7 @@ func (r WorkflowApi) TypeList(ctx *gin.Context) {
 		return
 	}
 
-	query.System = false
+	query.NoSystem = false
 	ctx.JSON(
 		http.StatusOK,
 		response.Auto(service.NewWorkflowService(db.Db, ctx).TypeList(query)),
@@ -163,7 +163,7 @@ func (r WorkflowApi) TypeOrdinaryList(ctx *gin.Context) {
 		return
 	}
 
-	query.System = true
+	query.NoSystem = true
 	ctx.JSON(
 		http.StatusOK,
 		response.Auto(service.NewWorkflowService(db.Db, ctx).TypeList(query)),

@@ -78,9 +78,9 @@ func (r *WorkflowTypeRepo) PageList(query dto.WorkflowTypeQueryDto) ([]repo.Work
 		tx = tx.Where("(name LIKE ? OR only_name LIKE ?)", "%"+query.Keyword+"%", "%"+query.Keyword+"%")
 	}
 
-	// 只查询系统内置的
-	if query.System {
-		tx = tx.Where("system = ?", 1)
+	// 排除系统内置的
+	if query.NoSystem {
+		tx = tx.Where("`system` = ?", 0)
 	}
 
 	// 查询已删除的记录

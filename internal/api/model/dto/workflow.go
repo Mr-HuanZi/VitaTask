@@ -28,7 +28,7 @@ type WorkflowTypeQueryDto struct {
 	UintId
 	QueryParams
 	DeletedQuery
-	System    bool    `json:"system"`
+	NoSystem  bool    `json:"-"`
 	TimeRange []int64 `json:"time_range"`
 }
 

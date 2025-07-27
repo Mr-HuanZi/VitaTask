@@ -143,7 +143,7 @@ func Routers(r *gin.Engine) {
 			twoG.POST("detail", workflowApi.TypeDetail)
 			twoG.POST("detail/only", workflowApi.TypeDetailByOnlyName)
 			twoG.GET("options", workflowApi.TypeOptions)
-			twoG.GET("ordinary_list", workflowApi.TypeOrdinaryList) // 工作流类型普通的列表，即不列出系统内置的工作流类型
+			twoG.POST("ordinary_list", workflowApi.TypeOrdinaryList) // 工作流类型普通的列表，即不列出系统内置的工作流类型
 		}
 
 		{
