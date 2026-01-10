@@ -7,6 +7,7 @@ const (
 	DbQueryError           = 103 // 数据库查询错误
 	DbExecuteError         = 104 // 数据库操作执行错误
 	NotLoggedIn            = 105 // 未登录
+	ParameterError         = 106 // 参数错误
 
 	LoginSingGenerateFail = 201 // 签名生成失败
 	LoginPassError        = 202 // 用户名或密码不正确
@@ -39,6 +40,7 @@ const (
 	ProjectMultipleSpecialMember = 2012 // 多个负责人或创建人
 	ProjectRoleNonExistent       = 2013 // 项目角色不存在
 	ProjectLeaderRemove          = 2014 // 移除项目负责人
+	ProjectAlreadyHaveMember     = 2015 // 项目已存在成员
 
 	TaskCreateFail            = 2100 // 任务创建失败
 	TaskStatusNotExist        = 2101 // 任务状态不存在
@@ -114,6 +116,7 @@ var codeMap = map[int]string{
 	DbQueryError:           "数据库查询错误",
 	DbExecuteError:         "数据库操作执行错误",
 	NotLoggedIn:            "用户未登录",
+	ParameterError:         "参数错误",
 
 	LoginSingGenerateFail: "签名生成失败",
 	LoginPassError:        "用户名或密码不正确",
@@ -146,6 +149,7 @@ var codeMap = map[int]string{
 	ProjectMultipleSpecialMember: "一个项目只能有一个负责人或创建人",
 	ProjectRoleNonExistent:       "项目角色不存在",
 	ProjectLeaderRemove:          "不得移除项目负责人",
+	ProjectAlreadyHaveMember:     "项目已存在成员",
 
 	TaskCreateFail:            "项目创建失败",
 	TaskNotExist:              "任务不存在",

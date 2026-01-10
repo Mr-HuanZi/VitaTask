@@ -490,3 +490,65 @@ func (receiver *ProjectMemberService) IsLeader(projectId uint, userId uint64) bo
 
 	return leader.UserId == userId
 }
+
+// InitProjectMember 初始化项目成员，即生成创建人和负责人
+func (receiver *ProjectMemberService) InitProjectMember(projectId uint, creatorUid uint64, leaderUid uint64) error {
+	if projectId <= 0 || creatorUid <= 0 || leaderUid <= 0 {
+		return exception.NewException(response.ParameterError)
+	}
+
+	// 校验用户ID是否存在
+	userRepo := data.NewUserRepo(receiver.Db, receiver.ctx)
+	if !userRepo.Exist(creatorUid) {
+		return exception.NewException(response.UserNotFound)
+	}
+
+	if creatorUid != leaderUid && !userRepo.Exist(leaderUid) {
+		return exception.NewException(response.UserNotFound)
+	}
+
+	// 如果项目已有成员，不得初始化
+	members, err := receiver.repo.GetProjectAllMember(projectId)
+	if err != nil {
+		return exception.ErrorHandle(err, response.DbQueryError)
+	}
+
+	if len(members) > 0 {
+		return exception.NewException(response.ProjectAlreadyHaveMember)
+	}
+
+	creatorRepoData := repo.ProjectMember{
+		ProjectId: projectId,
+		UserId:    creatorUid,
+		Role:      int8(constant.TaskCreator), // 需要转换成int8
+	}
+
+	// 初始化状态修改器
+	stateModifier := state.NewModifier(constant.TaskCreator)
+
+	// 创建人与负责人是同一人
+	if creatorUid == leaderUid {
+		tempRole := stateModifier.Attach(constant.ProjectLeader)
+		creatorRepoData.Role = int8(tempRole)
+	}
+
+	// 创建人
+	err = receiver.repo.CreateProjectMember(&creatorRepoData)
+	if err != nil {
+		return exception.ErrorHandle(err, response.DbExecuteError)
+	}
+
+	if creatorUid != leaderUid {
+		// 负责人
+		err = receiver.repo.CreateProjectMember(&repo.ProjectMember{
+			ProjectId: projectId,
+			UserId:    leaderUid,
+			Role:      int8(constant.TaskLeader), // 需要转换成int8
+		})
+		if err != nil {
+			return exception.ErrorHandle(err, response.DbExecuteError)
+		}
+	}
+
+	return nil
+}

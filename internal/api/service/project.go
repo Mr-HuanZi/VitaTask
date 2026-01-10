@@ -53,12 +53,8 @@ func (receiver *ProjectService) CreateProject(name string, leaderUid uint64) (*r
 		}
 
 		projectMemberService := NewProjectMemberService(tx, receiver.ctx)
-		// 关联创建人
-		if err := projectMemberService.Bind(newProject.ID, []uint64{currUser.ID}, constant.ProjectCreate); err != nil {
-			return err
-		}
-		// 关联负责人
-		return projectMemberService.Bind(newProject.ID, []uint64{leaderUid}, constant.ProjectLeader)
+		// 初始化创建人和负责人
+		return projectMemberService.InitProjectMember(newProject.ID, currUser.ID, leaderUid)
 	})
 	if err := exception.ErrorHandle(transactionErr, response.ProjectCreateFail, "创建项目失败: "); err != nil {
 		return nil, err
