@@ -18,7 +18,7 @@ func NewProjectApi() *ProjectApi {
 }
 
 // CreateProject 创建项目信息
-func (receiver *ProjectApi) CreateProject(ctx *gin.Context) {
+func (r ProjectApi) CreateProject(ctx *gin.Context) {
 	var post dto.CreateProjectForm
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -29,7 +29,7 @@ func (receiver *ProjectApi) CreateProject(ctx *gin.Context) {
 }
 
 // EditProject 编辑项目信息
-func (receiver *ProjectApi) EditProject(ctx *gin.Context) {
+func (r ProjectApi) EditProject(ctx *gin.Context) {
 	var post dto.EditProjectForm
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -39,7 +39,7 @@ func (receiver *ProjectApi) EditProject(ctx *gin.Context) {
 }
 
 // ProjectList 项目列表
-func (receiver *ProjectApi) ProjectList(ctx *gin.Context) {
+func (r ProjectApi) ProjectList(ctx *gin.Context) {
 	var post dto.ProjectListQuery
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -49,12 +49,12 @@ func (receiver *ProjectApi) ProjectList(ctx *gin.Context) {
 }
 
 // SimpleList 简单项目列表
-func (receiver *ProjectApi) SimpleList(ctx *gin.Context) {
+func (r ProjectApi) SimpleList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response.SuccessData(service.NewProjectService(db.Db, ctx).GetSimpleList()))
 }
 
 // ProjectTrash 项目回收站
-func (*ProjectApi) ProjectTrash(ctx *gin.Context) {
+func (r ProjectApi) ProjectTrash(ctx *gin.Context) {
 	var post dto.ProjectListQuery
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -65,7 +65,7 @@ func (*ProjectApi) ProjectTrash(ctx *gin.Context) {
 }
 
 // ProjectDelete 删除项目
-func (receiver *ProjectApi) ProjectDelete(ctx *gin.Context) {
+func (r ProjectApi) ProjectDelete(ctx *gin.Context) {
 	var post dto.ProjectSingleId
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -79,7 +79,7 @@ func (receiver *ProjectApi) ProjectDelete(ctx *gin.Context) {
 }
 
 // ProjectArchive 项目归档
-func (receiver *ProjectApi) ProjectArchive(ctx *gin.Context) {
+func (r ProjectApi) ProjectArchive(ctx *gin.Context) {
 	var post dto.ProjectSingleId
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -90,7 +90,7 @@ func (receiver *ProjectApi) ProjectArchive(ctx *gin.Context) {
 }
 
 // UnArchive 项目归档
-func (receiver *ProjectApi) UnArchive(ctx *gin.Context) {
+func (r ProjectApi) UnArchive(ctx *gin.Context) {
 	var post dto.ProjectSingleId
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -101,7 +101,7 @@ func (receiver *ProjectApi) UnArchive(ctx *gin.Context) {
 }
 
 // Star 收藏项目
-func (receiver *ProjectApi) Star(ctx *gin.Context) {
+func (r ProjectApi) Star(ctx *gin.Context) {
 	var post dto.ProjectSingleId
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -122,7 +122,7 @@ func (receiver *ProjectApi) Star(ctx *gin.Context) {
 }
 
 // UnStart 取消收藏项目
-func (receiver *ProjectApi) UnStart(ctx *gin.Context) {
+func (r ProjectApi) UnStart(ctx *gin.Context) {
 	var post dto.ProjectSingleId
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -143,7 +143,7 @@ func (receiver *ProjectApi) UnStart(ctx *gin.Context) {
 }
 
 // Transfer 移交项目
-func (receiver *ProjectApi) Transfer(ctx *gin.Context) {
+func (r ProjectApi) Transfer(ctx *gin.Context) {
 	var post dto.ProjectTransferForm
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
@@ -156,7 +156,7 @@ func (receiver *ProjectApi) Transfer(ctx *gin.Context) {
 }
 
 // Detail 获取项目详情
-func (receiver *ProjectApi) Detail(ctx *gin.Context) {
+func (r ProjectApi) Detail(ctx *gin.Context) {
 	var post dto.ProjectSingleId
 	if err := ctx.ShouldBindJSON(&post); err != nil {
 		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
