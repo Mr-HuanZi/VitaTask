@@ -64,3 +64,8 @@ type ProjectTransferForm struct {
 	Transferor uint64 `json:"transferor" binding:"required"` // 移交人
 	Recipient  uint64 `json:"recipient" binding:"required"`  // 接收人
 }
+
+type ProjectSettingUpdateForm struct {
+	ID                  uint `json:"id"`
+	DefaultWorkflowType uint `json:"default_workflow_type"`
+}

@@ -124,6 +124,17 @@ func (r *ProjectRepo) GetUserProjects(uid uint64) ([]repo.Project, error) {
 	return project, err
 }
 
+func (r *ProjectRepo) GetProjectSetting(id uint) (*repo.ProjectSetting, error) {
+	var projectSetting *repo.ProjectSetting
+	err := r.tx.Model(&repo.Project{}).Where("id = ?", id).First(&projectSetting).Error
+	return projectSetting, err
+}
+
+// UpdateProjectSetting 更新项目设置
+func (r *ProjectRepo) UpdateProjectSetting(id uint, setting map[string]interface{}) error {
+	return r.tx.Model(&repo.Project{}).Where("id = ?", id).Updates(setting).Error
+}
+
 func NewProjectRepo(tx *gorm.DB, ctx *gin.Context) repo.ProjectRepo {
 	return &ProjectRepo{
 		tx:  tx,

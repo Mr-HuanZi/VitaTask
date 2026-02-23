@@ -14,6 +14,15 @@ type Project struct {
 	Leader   *ProjectMember   `json:"leader,omitempty" gorm:"-"` // 手动获取
 }
 
+type ProjectSetting struct {
+	ID                  uint `json:"id,omitempty" gorm:"primaryKey"`
+	DefaultWorkflowType uint `json:"default_workflow_type"`
+}
+
+type ProjectSettingUpdate struct {
+	DefaultWorkflowType uint `json:"default_workflow_type"`
+}
+
 func (receiver Project) TableName() string {
 	return GetTablePrefix() + "project"
 }
@@ -31,4 +40,8 @@ type ProjectRepo interface {
 	// Archived 是否归档
 	Archived(id uint) bool
 	GetUserProjects(uid uint64) ([]Project, error)
+	// GetProjectSetting 获取项目设置
+	GetProjectSetting(id uint) (*ProjectSetting, error)
+	// UpdateProjectSetting 更新项目设置
+	UpdateProjectSetting(uint, map[string]interface{}) error
 }

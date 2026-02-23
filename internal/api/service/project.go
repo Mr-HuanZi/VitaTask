@@ -256,3 +256,28 @@ func (receiver *ProjectService) MyProjectIds() ([]uint, error) {
 
 	return projectIds, nil
 }
+
+// ProjectSetting 获取项目设置
+func (receiver *ProjectService) ProjectSetting(projectId uint) (*repo.ProjectSetting, error) {
+	// 判断项目是否存在
+	if !receiver.repo.Exist(projectId) {
+		return nil, exception.NewException(response.ProjectNotExist)
+	}
+
+	return receiver.repo.GetProjectSetting(projectId)
+}
+
+func (receiver *ProjectService) ProjectUpdateSetting(projectId uint, setting dto.ProjectSettingUpdateForm) error {
+	// 获取项目
+	if !receiver.repo.Exist(projectId) {
+		return exception.NewException(response.ProjectNotExist)
+	}
+
+	var projectSetting = make(map[string]interface{})
+	// 更新项目设置
+	projectSetting["default_workflow_type"] = setting.DefaultWorkflowType
+
+	err := receiver.repo.UpdateProjectSetting(projectId, projectSetting)
+
+	return exception.ErrorHandle(err, response.DbExecuteError, "项目设置更新失败: ")
+}

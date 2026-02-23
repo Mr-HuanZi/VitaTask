@@ -66,6 +66,8 @@ func Routers(r *gin.Engine) {
 		g.POST("un-star", projectApi.UnStart)
 		g.POST("transfer", projectApi.Transfer)
 		g.POST("detail", projectApi.Detail)
+		g.POST("setting", projectApi.ProjectSetting)
+		g.POST("update_setting", projectApi.ProjectUpdateSetting)
 
 		{
 			projectMemberApi := handle.NewProjectMemberApi()

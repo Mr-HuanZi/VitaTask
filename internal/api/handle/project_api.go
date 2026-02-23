@@ -168,3 +168,31 @@ func (r ProjectApi) Detail(ctx *gin.Context) {
 		response.Auto(service.NewProjectService(db.Db, ctx).GetOneProject(post.ID)),
 	)
 }
+
+// ProjectSetting 获取项目设置
+func (r ProjectApi) ProjectSetting(ctx *gin.Context) {
+	var post dto.ProjectSingleId
+	if err := ctx.ShouldBindJSON(&post); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(service.NewProjectService(db.Db, ctx).ProjectSetting(post.ID)),
+	)
+}
+
+// ProjectUpdateSetting 更新项目设置
+func (r ProjectApi) ProjectUpdateSetting(ctx *gin.Context) {
+	var post dto.ProjectSettingUpdateForm
+	if err := ctx.ShouldBindJSON(&post); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(nil, service.NewProjectService(db.Db, ctx).ProjectUpdateSetting(post.ID, post)),
+	)
+}
