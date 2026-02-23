@@ -450,9 +450,9 @@ func (r *WorkflowService) TypeDetailByOnlyName(onlyName string) (*repo.WorkflowT
 }
 
 // TypeOptions 获取Label+Value格式的工作流类型列表
-func (r *WorkflowService) TypeOptions(keyWords string, system bool) ([]dto.UniversalSimpleList[uint], error) {
+func (r *WorkflowService) TypeOptions(keyword string, system bool) ([]dto.UniversalSimpleList[uint], error) {
 	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
-	l, err := workflowTypeRepo.GetOptions(keyWords, system)
+	l, err := workflowTypeRepo.GetOptions(keyword, system)
 	if err != nil {
 		return nil, db.FirstQueryErrorHandle(err, response.WorkflowTypeNotExist)
 	}

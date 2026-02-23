@@ -103,14 +103,14 @@ func (r *WorkflowTypeRepo) PageList(query dto.WorkflowTypeQueryDto) ([]repo.Work
 	return list, total, exception.ErrorHandle(err, response.DbQueryError)
 }
 
-func (r *WorkflowTypeRepo) GetOptions(keyWords string, system bool) ([]repo.WorkflowType, error) {
+func (r *WorkflowTypeRepo) GetOptions(keyword string, system bool) ([]repo.WorkflowType, error) {
 	var (
 		list []repo.WorkflowType = nil
 	)
 
 	tx := r.tx.Model(repo.WorkflowType{})
-	if len(keyWords) > 0 {
-		tx = tx.Where("name LIKE ?", "%"+keyWords+"%")
+	if len(keyword) > 0 {
+		tx = tx.Where("name LIKE ?", "%"+keyword+"%")
 	}
 	if !system {
 		// 只搜索非系统内置
