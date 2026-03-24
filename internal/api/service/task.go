@@ -701,10 +701,9 @@ func (receiver TaskService) DailySituation(query dto.DailySituationQuery) ([]dto
 
 	for ; i < dayDiff; i++ {
 		var (
-			addQuantity        int64 = 0
-			completedQuantity  int64 = 0
-			incompleteQuantity int64 = 0
-			err                error
+			addQuantity       int64 = 0
+			completedQuantity int64 = 0
+			err               error
 		)
 
 		if i <= 0 {
@@ -728,22 +727,11 @@ func (receiver TaskService) DailySituation(query dto.DailySituationQuery) ([]dto
 			return nil, exception.ErrorHandle(err, response.DbQueryError)
 		}
 
-		// 当天未完成的任务
-		incompleteQuantity, err = receiver.repo.TaskNumber(query.ProjectId, []int{constant.TaskStatusProcessing})
-		if err != nil {
-			return nil, exception.ErrorHandle(err, response.DbQueryError)
-		}
-
 		dailySituation = append(dailySituation,
 			dto.DailySituationVo{
 				Label: "已完成",
 				Date:  start.ToDateString(),
 				Value: completedQuantity,
-			},
-			dto.DailySituationVo{
-				Label: "未完成",
-				Date:  start.ToDateString(),
-				Value: incompleteQuantity,
 			},
 			dto.DailySituationVo{
 				Label: "新增",

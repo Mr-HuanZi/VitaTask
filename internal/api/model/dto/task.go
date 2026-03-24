@@ -61,10 +61,10 @@ type TaskGroupQuery struct {
 }
 
 type TaskStatistics struct {
-	Completed         int64 `json:"completed,omitempty"`
-	Processing        int64 `json:"processing,omitempty"`
-	FinishOnTime      int64 `json:"finish_on_time,omitempty"`
-	TimeoutCompletion int64 `json:"timeout_completion,omitempty"`
+	Completed         int64 `json:"completed"`
+	Processing        int64 `json:"processing"`
+	FinishOnTime      int64 `json:"finish_on_time"`
+	TimeoutCompletion int64 `json:"timeout_completion"`
 }
 
 type DailySituationQuery struct {
