@@ -133,6 +133,12 @@ func (r *WorkflowNodeRepo) GetTypeAll(typeId uint) ([]repo.WorkflowNode, error) 
 	return list, err
 }
 
+func (r *WorkflowNodeRepo) GetListByIds(ids []uint) ([]repo.WorkflowNode, error) {
+	var list []repo.WorkflowNode
+	err := r.tx.Model(&repo.WorkflowNode{}).Where("id IN ?", ids).Find(&list).Error
+	return list, err
+}
+
 func (r *WorkflowNodeRepo) SetDbInstance(tx *gorm.DB) {
 	r.tx = tx
 }

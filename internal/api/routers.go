@@ -161,6 +161,7 @@ func Routers(r *gin.Engine) {
 			twoG.POST("save_schema", workflowApi.NodeSaveSchema)           // 保存节点表单配置
 			twoG.POST("get_schema", workflowApi.NodeGetSchema)             // 获取节点表单配置
 			twoG.POST("save_circulation", workflowApi.NodeSaveCirculation) // 保存节点流转配置
+			twoG.POST("node_reachable", workflowApi.NodeReachable)         // 获取指定节点可到达的其它节点
 		}
 
 		{

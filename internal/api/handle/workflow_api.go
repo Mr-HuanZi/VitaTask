@@ -349,6 +349,20 @@ func (r WorkflowApi) NodeSaveCirculation(ctx *gin.Context) {
 	)
 }
 
+// NodeReachable 获取指定节点可到达的其它节点
+func (r WorkflowApi) NodeReachable(ctx *gin.Context) {
+	var post dto.SingleUintRequired
+	if err := ctx.ShouldBindJSON(&post); err != nil {
+		ctx.JSON(http.StatusOK, response.HandleFormVerificationFailed(err))
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		response.Auto(service.NewWorkflowService(db.Db, ctx).NodeReachable(post.ID)),
+	)
+}
+
 func (r WorkflowApi) Actions(ctx *gin.Context) {
 	ctx.JSON(
 		http.StatusOK,

@@ -1,13 +1,14 @@
 package response
 
 const (
-	SystemFail             = 0   // 系统错误
-	FormVerificationFailed = 101 // 表单校验失败
-	SignatureMissing       = 102 // 签名丢失
-	DbQueryError           = 103 // 数据库查询错误
-	DbExecuteError         = 104 // 数据库操作执行错误
-	NotLoggedIn            = 105 // 未登录
-	ParameterError         = 106 // 参数错误
+	SystemFail                       = 0   // 系统错误
+	FormVerificationFailed           = 101 // 表单校验失败
+	SignatureMissing                 = 102 // 签名丢失
+	DbQueryError                     = 103 // 数据库查询错误
+	DbExecuteError                   = 104 // 数据库操作执行错误
+	NotLoggedIn                      = 105 // 未登录
+	ParameterError                   = 106 // 参数错误
+	TypeConversionFailedStringToUint = 107 // 类型转换失败String To Uint
 
 	LoginSingGenerateFail = 201 // 签名生成失败
 	LoginPassError        = 202 // 用户名或密码不正确
@@ -100,6 +101,8 @@ const (
 	WorkflowTypeDeleteFailByUsed         = 6113 // 工作流模板(类型)已被使用，无法删除
 	WorkflowTypeUsedQueryFail            = 6114 // 工作流模板(类型)已使用数量查询失败
 	WorkflowTypeDeleteFailBySystem       = 6115 // 工作流模板(类型)为系统内置，无法删除
+	WorkflowNotFreeCirculation           = 6116 // 工作流不是自由流转模式
+	WorkflowEmptyFreeCirculation         = 6117 // 工作流自由流转配置为空
 
 	TimeParseFail            = 9000 // 时间解析失败
 	ElementQuantityTooLittle = 9001 // 元素数量太少
@@ -117,6 +120,8 @@ var codeMap = map[int]string{
 	DbExecuteError:         "数据库操作执行错误",
 	NotLoggedIn:            "用户未登录",
 	ParameterError:         "参数错误",
+	// 类型转换失败string to uint
+	TypeConversionFailedStringToUint: "类型转换失败String to uint",
 
 	LoginSingGenerateFail: "签名生成失败",
 	LoginPassError:        "用户名或密码不正确",
@@ -209,6 +214,8 @@ var codeMap = map[int]string{
 	WorkflowTypeDeleteFailByUsed:         "工作流类型(模板)已被使用，无法删除",
 	WorkflowTypeUsedQueryFail:            "工作流模板(类型)已使用数量查询失败",
 	WorkflowTypeDeleteFailBySystem:       "工作流模板(类型)为系统内置，无法删除",
+	WorkflowNotFreeCirculation:           "工作流不是自由流转模式",
+	WorkflowEmptyFreeCirculation:         "工作流自由流转配置为空",
 
 	TimeParseFail:            "时间解析失败",
 	ElementQuantityTooLittle: "元素数量太少",

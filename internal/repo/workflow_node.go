@@ -37,5 +37,6 @@ type WorkflowNodeRepo interface {
 	FirstNode(typeId uint) (*WorkflowNode, error)
 	// GetTypeAll 获取某类型的所有节点
 	GetTypeAll(typeId uint) ([]WorkflowNode, error)
+	GetListByIds(ids []uint) ([]WorkflowNode, error)
 	SetDbInstance(tx *gorm.DB)
 }

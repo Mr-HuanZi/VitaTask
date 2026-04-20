@@ -765,6 +765,63 @@ func (r *WorkflowService) NodeGetSchema(id uint) (string, error) {
 	return nodeData.Schema, nil
 }
 
+// NodeReachable 获取指定节点可到达的其它节点
+func (r *WorkflowService) NodeReachable(id uint) ([]vo.WorkflowNodeVo, error) {
+	workflowNodeRepo := data.NewWorkflowNodeRepo(r.Db, r.ctx)
+	workflowTypeRepo := data.NewWorkflowTypeRepo(r.Db, r.ctx)
+
+	// 获取节点记录
+	nodeData, err := workflowNodeRepo.Get(id)
+	if err != nil {
+		return nil, db.FirstQueryErrorHandle(err, response.WorkflowNodeNotExist)
+	}
+
+	// 获取工作流模板信息
+	typeInfo, err := workflowTypeRepo.Get(nodeData.TypeId)
+	if err != nil {
+		return nil, db.FirstQueryErrorHandle(err, response.WorkflowTypeNotExist)
+	}
+	if typeInfo.CirculationMode != 2 {
+		return nil, exception.NewException(response.WorkflowNotFreeCirculation)
+	}
+
+	if len(nodeData.Circulation) <= 0 {
+		return nil, exception.NewException(response.WorkflowEmptyFreeCirculation)
+	}
+
+	circulationIds := strutil.SplitAndTrim(nodeData.Circulation, ",")
+	// 转成uint
+	circulationIdsUint := make([]uint, 0, len(circulationIds))
+	for _, id := range circulationIds {
+		uintId, err := strconv.ParseUint(id, 10, 32)
+		if err != nil {
+			return nil, exception.NewException(response.TypeConversionFailedStringToUint)
+		}
+		circulationIdsUint = append(circulationIdsUint, uint(uintId))
+	}
+
+	nodeList, listErr := workflowNodeRepo.GetListByIds(circulationIdsUint)
+	if listErr != nil {
+		return nil, exception.ErrorHandle(listErr, response.DbQueryError, "查询节点失败: ")
+	}
+
+	nodeVo := make([]vo.WorkflowNodeVo, len(nodeList))
+	for i, node := range nodeList {
+		nodeVo[i] = vo.WorkflowNodeVo{
+			ID:          node.ID,
+			Node:        node.Node,
+			Name:        node.Name,
+			Action:      node.Action,
+			ActionValue: node.ActionValue,
+			Everyone:    node.Everyone,
+			End:         node.End,
+		}
+	}
+
+	// 只返回流转配置数据
+	return nodeVo, nil
+}
+
 func (r *WorkflowService) Actions() []dto.UniversalSimpleList[string] {
 	kv := workflow.GetAllActionName()
 	s := make([]dto.UniversalSimpleList[string], len(kv))
